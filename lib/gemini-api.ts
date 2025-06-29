@@ -1,5 +1,12 @@
 import { executeGoogleSearch, executeGeminiChat } from "../index";
 
+/**
+ * Handles a Google search request by executing the `executeGoogleSearch` function.
+ * This function is designed to be used by the Next.js API route.
+ * @param query The search query string.
+ * @param options Optional parameters for the search.
+ * @returns A result object with success status, data or error, and a timestamp.
+ */
 export async function handleGoogleSearch(
   query: string,
   options: {
@@ -33,6 +40,13 @@ export async function handleGoogleSearch(
   }
 }
 
+/**
+ * Handles a Gemini chat request by executing the `executeGeminiChat` function.
+ * This function is designed to be used by the Next.js API route.
+ * @param prompt The chat prompt string.
+ * @param options Optional parameters for the chat.
+ * @returns A result object with success status, data or error, and a timestamp.
+ */
 export async function handleGeminiChat(
   prompt: string,
   options: {
