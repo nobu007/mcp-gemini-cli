@@ -3,15 +3,22 @@ export interface CustomInstructionTemplate {
   title: string;
   description: string;
   instruction: string;
-  category: 'ci-cd' | 'testing' | 'code-review' | 'security' | 'optimization' | 'documentation';
+  category:
+    | "ci-cd"
+    | "testing"
+    | "code-review"
+    | "security"
+    | "optimization"
+    | "documentation";
   tags: string[];
 }
 
 export const customInstructionTemplates: CustomInstructionTemplate[] = [
   {
-    id: 'github-actions-review',
-    title: 'GitHub Actions ワークフローレビュー',
-    description: '全てのGitHub Actionsワークフローをレビューして改善点を提案します',
+    id: "github-actions-review",
+    title: "GitHub Actions ワークフローレビュー",
+    description:
+      "全てのGitHub Actionsワークフローをレビューして改善点を提案します",
     instruction: `プロジェクト内の全てのGitHub Actionsワークフローファイル（.github/workflows/*.yml, *.yaml）を確認し、以下の観点から改善点を提案してください：
 
 1. セキュリティの観点：
@@ -35,13 +42,14 @@ export const customInstructionTemplates: CustomInstructionTemplate[] = [
    - 条件分岐の最適化
 
 各ワークフローファイルを分析し、具体的な改善案とその理由をコードとともに提示してください。`,
-    category: 'ci-cd',
-    tags: ['github-actions', 'ci', 'security', 'performance']
+    category: "ci-cd",
+    tags: ["github-actions", "ci", "security", "performance"],
   },
   {
-    id: 'test-coverage-improvement',
-    title: 'テストカバレッジ向上',
-    description: 'コードベースのテストカバレッジを分析し、テストが不足している部分を特定して改善します',
+    id: "test-coverage-improvement",
+    title: "テストカバレッジ向上",
+    description:
+      "コードベースのテストカバレッジを分析し、テストが不足している部分を特定して改善します",
     instruction: `プロジェクトのテストカバレッジを分析し、以下の作業を実行してください：
 
 1. 現在のテスト状況の把握：
@@ -63,13 +71,14 @@ export const customInstructionTemplates: CustomInstructionTemplate[] = [
    - 継続的なテスト品質維持のための提案
 
 優先度の高い順にテストを実装し、各テストの目的と重要性を説明してください。`,
-    category: 'testing',
-    tags: ['testing', 'coverage', 'quality-assurance', 'unit-test']
+    category: "testing",
+    tags: ["testing", "coverage", "quality-assurance", "unit-test"],
   },
   {
-    id: 'code-security-audit',
-    title: 'コードセキュリティ監査',
-    description: 'セキュリティの観点からコードベースを監査し、脆弱性や改善点を特定します',
+    id: "code-security-audit",
+    title: "コードセキュリティ監査",
+    description:
+      "セキュリティの観点からコードベースを監査し、脆弱性や改善点を特定します",
     instruction: `コードベースのセキュリティ監査を実行し、以下の項目をチェックしてください：
 
 1. 依存関係のセキュリティ：
@@ -98,13 +107,14 @@ export const customInstructionTemplates: CustomInstructionTemplate[] = [
    - エラーメッセージからの情報漏洩防止
 
 発見した問題点について、リスクレベルとともに具体的な修正案を提示してください。`,
-    category: 'security',
-    tags: ['security', 'vulnerability', 'audit', 'best-practices']
+    category: "security",
+    tags: ["security", "vulnerability", "audit", "best-practices"],
   },
   {
-    id: 'performance-optimization',
-    title: 'パフォーマンス最適化',
-    description: 'アプリケーションのパフォーマンスを分析し、ボトルネックを特定して最適化します',
+    id: "performance-optimization",
+    title: "パフォーマンス最適化",
+    description:
+      "アプリケーションのパフォーマンスを分析し、ボトルネックを特定して最適化します",
     instruction: `アプリケーションのパフォーマンスを分析し、以下の観点から最適化を実行してください：
 
 1. フロントエンド最適化（該当する場合）：
@@ -130,13 +140,14 @@ export const customInstructionTemplates: CustomInstructionTemplate[] = [
    - アラートの設定
 
 各最適化について、実装前後のパフォーマンス比較と、実装の優先度を説明してください。`,
-    category: 'optimization',
-    tags: ['performance', 'optimization', 'bundling', 'caching']
+    category: "optimization",
+    tags: ["performance", "optimization", "bundling", "caching"],
   },
   {
-    id: 'code-review-checklist',
-    title: 'コードレビューチェックリスト作成',
-    description: 'プロジェクト固有のコードレビューチェックリストを作成し、レビュープロセスを標準化します',
+    id: "code-review-checklist",
+    title: "コードレビューチェックリスト作成",
+    description:
+      "プロジェクト固有のコードレビューチェックリストを作成し、レビュープロセスを標準化します",
     instruction: `このプロジェクトに特化したコードレビューチェックリストを作成してください：
 
 1. プロジェクト分析：
@@ -162,13 +173,14 @@ export const customInstructionTemplates: CustomInstructionTemplate[] = [
    - レビュー完了の基準
 
 実用的で実行可能なチェックリストを作成し、チーム内で共有しやすい形式で提示してください。`,
-    category: 'code-review',
-    tags: ['code-review', 'quality-assurance', 'standards', 'process']
+    category: "code-review",
+    tags: ["code-review", "quality-assurance", "standards", "process"],
   },
   {
-    id: 'documentation-enhancement',
-    title: 'ドキュメント改善',
-    description: 'プロジェクトのドキュメントを見直し、不足している部分を補完して改善します',
+    id: "documentation-enhancement",
+    title: "ドキュメント改善",
+    description:
+      "プロジェクトのドキュメントを見直し、不足している部分を補完して改善します",
     instruction: `プロジェクトのドキュメントを包括的にレビューし、改善してください：
 
 1. 既存ドキュメントの評価：
@@ -195,13 +207,14 @@ export const customInstructionTemplates: CustomInstructionTemplate[] = [
    - 自動生成できる部分の特定
 
 新規ユーザーと既存開発者両方にとって有用なドキュメントを作成し、プロジェクトの理解と貢献を促進してください。`,
-    category: 'documentation',
-    tags: ['documentation', 'readme', 'api-docs', 'user-guide']
+    category: "documentation",
+    tags: ["documentation", "readme", "api-docs", "user-guide"],
   },
   {
-    id: 'dependency-management',
-    title: '依存関係管理最適化',
-    description: 'プロジェクトの依存関係を見直し、セキュリティとパフォーマンスの観点から最適化します',
+    id: "dependency-management",
+    title: "依存関係管理最適化",
+    description:
+      "プロジェクトの依存関係を見直し、セキュリティとパフォーマンスの観点から最適化します",
     instruction: `プロジェクトの依存関係を分析し、最適化してください：
 
 1. 依存関係の現状分析：
@@ -227,7 +240,7 @@ export const customInstructionTemplates: CustomInstructionTemplate[] = [
    - ライセンス管理の自動化
 
 各変更について、影響範囲とテスト要件を明確にし、段階的な移行計画を提示してください。`,
-    category: 'optimization',
-    tags: ['dependencies', 'security', 'updates', 'optimization']
-  }
+    category: "optimization",
+    tags: ["dependencies", "security", "updates", "optimization"],
+  },
 ];

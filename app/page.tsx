@@ -76,7 +76,7 @@ export default function Home() {
           onClick={() => setShowTemplates(!showTemplates)}
           className="px-6 py-3 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors font-medium"
         >
-          {showTemplates ? 'テンプレートを閉じる' : '開発テンプレートを表示'}
+          {showTemplates ? "テンプレートを閉じる" : "開発テンプレートを表示"}
         </button>
       </div>
 

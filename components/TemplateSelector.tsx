@@ -1,30 +1,43 @@
 "use client";
 
 import { useState } from "react";
-import { customInstructionTemplates, type CustomInstructionTemplate } from "./templates";
+import {
+  customInstructionTemplates,
+  type CustomInstructionTemplate,
+} from "./templates";
 
 interface TemplateSelectorProps {
   onTemplateSelect: (instruction: string) => void;
 }
 
 const categoryColors = {
-  'ci-cd': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-  'testing': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-  'code-review': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-  'security': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-  'optimization': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-  'documentation': 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200',
+  "ci-cd": "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+  testing: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+  "code-review":
+    "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
+  security: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+  optimization:
+    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+  documentation:
+    "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200",
 };
 
-export default function TemplateSelector({ onTemplateSelect }: TemplateSelectorProps) {
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+export default function TemplateSelector({
+  onTemplateSelect,
+}: TemplateSelectorProps) {
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [expandedTemplate, setExpandedTemplate] = useState<string | null>(null);
 
-  const categories = Array.from(new Set(customInstructionTemplates.map(t => t.category)));
-  
-  const filteredTemplates = selectedCategory === 'all' 
-    ? customInstructionTemplates 
-    : customInstructionTemplates.filter(t => t.category === selectedCategory);
+  const categories = Array.from(
+    new Set(customInstructionTemplates.map((t) => t.category)),
+  );
+
+  const filteredTemplates =
+    selectedCategory === "all"
+      ? customInstructionTemplates
+      : customInstructionTemplates.filter(
+          (t) => t.category === selectedCategory,
+        );
 
   const handleTemplateSelect = (template: CustomInstructionTemplate) => {
     onTemplateSelect(template.instruction);
@@ -40,29 +53,29 @@ export default function TemplateSelector({ onTemplateSelect }: TemplateSelectorP
         <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
           カスタムインストラクション テンプレート
         </h3>
-        
+
         {/* Category Filter */}
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
-            onClick={() => setSelectedCategory('all')}
+            onClick={() => setSelectedCategory("all")}
             className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-              selectedCategory === 'all'
-                ? 'bg-primary-500 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+              selectedCategory === "all"
+                ? "bg-primary-500 text-white"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
             }`}
           >
             すべて
           </button>
-          {categories.map(category => (
+          {categories.map((category) => (
             <button
               type="button"
               key={category}
               onClick={() => setSelectedCategory(category)}
               className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
                 selectedCategory === category
-                  ? 'bg-primary-500 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                  ? "bg-primary-500 text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
               }`}
             >
               {category}
@@ -83,17 +96,19 @@ export default function TemplateSelector({ onTemplateSelect }: TemplateSelectorP
                 <h4 className="font-medium text-gray-900 dark:text-gray-100 leading-tight">
                   {template.title}
                 </h4>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${categoryColors[template.category]}`}>
+                <span
+                  className={`px-2 py-1 rounded-full text-xs font-medium ${categoryColors[template.category]}`}
+                >
                   {template.category}
                 </span>
               </div>
-              
+
               <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
                 {template.description}
               </p>
-              
+
               <div className="flex flex-wrap gap-1">
-                {template.tags.slice(0, 3).map(tag => (
+                {template.tags.slice(0, 3).map((tag) => (
                   <span
                     key={tag}
                     className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-xs text-gray-600 dark:text-gray-300 rounded"
@@ -116,7 +131,7 @@ export default function TemplateSelector({ onTemplateSelect }: TemplateSelectorP
                   </div>
                 </div>
               )}
-              
+
               <div className="flex gap-2">
                 <button
                   type="button"
@@ -130,7 +145,7 @@ export default function TemplateSelector({ onTemplateSelect }: TemplateSelectorP
                   onClick={() => toggleExpanded(template.id)}
                   className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
-                  {expandedTemplate === template.id ? '閉じる' : '詳細'}
+                  {expandedTemplate === template.id ? "閉じる" : "詳細"}
                 </button>
               </div>
             </div>
