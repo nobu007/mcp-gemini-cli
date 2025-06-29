@@ -100,7 +100,10 @@ export default function Home() {
 
       {/* Working Directory Section */}
       <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-        <label htmlFor="workingDirectory" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label
+          htmlFor="workingDirectory"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+        >
           Working Directory (Optional)
         </label>
         <input
