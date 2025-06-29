@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-$#!/usr/bin/env node
+#!/usr/bin/env node
 
 import { createRequire } from "node:module";
 var __create = Object.create;
@@ -13405,5 +13405,5 @@ if (__require.main == __require.module) {
   startMcpServer().catch(console.error);
 }
 
-//# debugId=24138B3A312CC1EB64756E2164756E21
+//# debugId=F0629A42C177236664756E2164756E21
 //# sourceMappingURL=cli.js.map

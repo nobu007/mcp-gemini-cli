@@ -1,4 +1,4 @@
-$#!/usr/bin/env node
+#!/usr/bin/env node
 
 import { createRequire } from "node:module";
 var __create = Object.create;
@@ -13348,5 +13348,5 @@ export {
   GeminiChatParametersSchema
 };
 
-//# debugId=101CCC1315BB848E64756E2164756E21
+//# debugId=E0C415B8899A945264756E2164756E21
 //# sourceMappingURL=index.js.map
