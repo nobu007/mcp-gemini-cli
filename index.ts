@@ -4,7 +4,14 @@ import { spawn } from "node:child_process";
 import { z } from "zod";
 import { TIMEOUT_CONFIG } from "./config";
 
-// Function to determine the gemini-cli command and its initial arguments
+/**
+ * Determines the command to execute for gemini-cli.
+ * It first checks if 'gemini' is in the system's PATH. If not, and if allowNpx is true,
+ * it falls back to using 'npx' to run the CLI from its GitHub repository.
+ * @param allowNpx - If true, allows using npx as a fallback.
+ * @returns A promise that resolves to an object containing the command and initial arguments.
+ * @throws An error if 'gemini' is not found and npx is not allowed.
+ */
 export async function decideGeminiCliCommand(
   allowNpx: boolean,
 ): Promise<{ command: string; initialArgs: string[] }> {
@@ -32,7 +39,15 @@ export async function decideGeminiCliCommand(
   });
 }
 
-// Function to execute gemini-cli command
+/**
+ * Executes the gemini-cli command as a child process with a specified timeout.
+ * @param geminiCliCommand - The command and initial arguments to execute.
+ * @param args - The arguments to pass to the gemini-cli command.
+ * @param timeoutMs - The timeout in milliseconds for the operation.
+ * @param workingDirectory - The working directory to run the command in.
+ * @returns A promise that resolves with the stdout of the command.
+ * @throws An error if the command times out or exits with a non-zero code.
+ */
 export async function executeGeminiCli(
   geminiCliCommand: { command: string; initialArgs: string[] },
   args: string[],
@@ -143,7 +158,13 @@ export const GeminiChatParametersSchema = z.object({
     .describe("Working directory path for gemini-cli execution (optional)."),
 });
 
-// Extracted tool execution functions for testing
+/**
+ * Executes a Google search using the gemini-cli.
+ * It constructs a detailed prompt for the AI to ensure structured output when `raw` is requested.
+ * @param args - The arguments for the search, validated against GoogleSearchParametersSchema.
+ * @param allowNpx - If true, allows using npx as a fallback for the gemini command.
+ * @returns The search result as a string. If `raw` is true, it returns a JSON string.
+ */
 export async function executeGoogleSearch(args: unknown, allowNpx = false) {
   const parsedArgs = GoogleSearchParametersSchema.parse(args);
   const geminiCliCmd = await decideGeminiCliCommand(allowNpx);
@@ -209,6 +230,12 @@ export async function executeGoogleSearch(args: unknown, allowNpx = false) {
   return result;
 }
 
+/**
+ * Executes a chat conversation using the gemini-cli.
+ * @param args - The arguments for the chat, validated against GeminiChatParametersSchema.
+ * @param allowNpx - If true, allows using npx as a fallback for the gemini command.
+ * @returns The chat response as a string.
+ */
 export async function executeGeminiChat(args: unknown, allowNpx = false) {
   const parsedArgs = GeminiChatParametersSchema.parse(args);
   const geminiCliCmd = await decideGeminiCliCommand(allowNpx);
@@ -236,6 +263,11 @@ export async function executeGeminiChat(args: unknown, allowNpx = false) {
   return result;
 }
 
+/**
+ * The main function of the MCP server.
+ * It initializes the McpServer, registers the `googleSearch` and `geminiChat` tools,
+ * and connects the server to a StdioServerTransport.
+ */
 async function main() {
   // Check for --allow-npx argument
   const allowNpx = process.argv.includes("--allow-npx");
