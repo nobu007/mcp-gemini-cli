@@ -26,6 +26,10 @@ export default function Home() {
         }),
       });
 
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("Server returned non-JSON response");
+      }
       const data = await response.json();
       setSearchResult(data.success ? data.data : `Error: ${data.error}`);
     } catch (error) {
@@ -49,6 +53,10 @@ export default function Home() {
         }),
       });
 
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("Server returned non-JSON response");
+      }
       const data = await response.json();
       setChatResult(data.success ? data.data : `Error: ${data.error}`);
     } catch (error) {
