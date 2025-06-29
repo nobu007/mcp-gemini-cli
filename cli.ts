@@ -63,6 +63,10 @@ async function startMcpServer() {
           .describe(
             'The Gemini model to use. Recommended: "gemini-2.5-pro" (default) or "gemini-2.5-flash". Both models are confirmed to work with Google login.',
           ),
+        workingDirectory: z
+          .string()
+          .optional()
+          .describe("Working directory path for gemini-cli execution (optional)."),
       },
     },
     async (args) => {
@@ -99,6 +103,10 @@ async function startMcpServer() {
           .describe(
             'The Gemini model to use. Recommended: "gemini-2.5-pro" (default) or "gemini-2.5-flash". Both models are confirmed to work with Google login.',
           ),
+        workingDirectory: z
+          .string()
+          .optional()
+          .describe("Working directory path for gemini-cli execution (optional)."),
       },
     },
     async (args) => {

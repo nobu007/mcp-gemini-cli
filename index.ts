@@ -38,6 +38,7 @@ export async function executeGeminiCli(
   timeoutMs: number = Number.parseInt(
     process.env.GEMINI_CLI_TIMEOUT_MS || "60000",
   ), // 環境変数で設定可能、デフォルト60秒
+  workingDirectory?: string,
 ): Promise<string> {
   const { command, initialArgs } = geminiCliCommand;
   const commandArgs = [...initialArgs, ...args];
@@ -45,6 +46,7 @@ export async function executeGeminiCli(
   return new Promise((resolve, reject) => {
     const child = spawn(command, commandArgs, {
       stdio: ["pipe", "pipe", "pipe"],
+      cwd: workingDirectory || process.cwd(),
     });
     let stdout = "";
     let stderr = "";
@@ -116,6 +118,10 @@ export const GoogleSearchParametersSchema = z.object({
     .describe(
       'The Gemini model to use. Recommended: "gemini-2.5-pro" (default) or "gemini-2.5-flash". Both models are confirmed to work with Google login.',
     ),
+  workingDirectory: z
+    .string()
+    .optional()
+    .describe("Working directory path for gemini-cli execution (optional)."),
 });
 
 // Zod schema for geminiChat tool parameters
@@ -132,12 +138,19 @@ export const GeminiChatParametersSchema = z.object({
     .describe(
       'The Gemini model to use. Recommended: "gemini-2.5-pro" (default) or "gemini-2.5-flash". Both models are confirmed to work with Google login.',
     ),
+  workingDirectory: z
+    .string()
+    .optional()
+    .describe("Working directory path for gemini-cli execution (optional)."),
 });
 
 // Extracted tool execution functions for testing
 export async function executeGoogleSearch(args: unknown, allowNpx = false) {
   const parsedArgs = GoogleSearchParametersSchema.parse(args);
   const geminiCliCmd = await decideGeminiCliCommand(allowNpx);
+  
+  // Use provided working directory or environment variable default
+  const workingDir = parsedArgs.workingDirectory || process.env.GEMINI_CLI_WORKING_DIR;
 
   // Build prompt based on options
   let prompt: string;
@@ -172,7 +185,12 @@ export async function executeGoogleSearch(args: unknown, allowNpx = false) {
   const searchTimeout = Number.parseInt(
     process.env.GEMINI_CLI_SEARCH_TIMEOUT_MS || "30000",
   );
-  const result = await executeGeminiCli(geminiCliCmd, cliArgs, searchTimeout);
+  const result = await executeGeminiCli(
+    geminiCliCmd,
+    cliArgs,
+    searchTimeout,
+    workingDir,
+  );
 
   // For raw requests, attempt to clean up and parse the JSON
   if (parsedArgs.raw) {
@@ -196,6 +214,10 @@ export async function executeGoogleSearch(args: unknown, allowNpx = false) {
 export async function executeGeminiChat(args: unknown, allowNpx = false) {
   const parsedArgs = GeminiChatParametersSchema.parse(args);
   const geminiCliCmd = await decideGeminiCliCommand(allowNpx);
+  
+  // Use provided working directory or environment variable default
+  const workingDir = parsedArgs.workingDirectory || process.env.GEMINI_CLI_WORKING_DIR;
+  
   const cliArgs = ["-p", parsedArgs.prompt];
   if (parsedArgs.sandbox) {
     cliArgs.push("-s");
@@ -206,7 +228,12 @@ export async function executeGeminiChat(args: unknown, allowNpx = false) {
   if (parsedArgs.model) {
     cliArgs.push("-m", parsedArgs.model);
   }
-  const result = await executeGeminiCli(geminiCliCmd, cliArgs);
+  const result = await executeGeminiCli(
+    geminiCliCmd,
+    cliArgs,
+    60000,
+    workingDir,
+  );
   return result;
 }
 
