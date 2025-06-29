@@ -11,6 +11,7 @@ export interface CustomInstructionTemplate {
     | "optimization"
     | "documentation";
   tags: string[];
+  directions?: string[];
 }
 
 export const customInstructionTemplates: CustomInstructionTemplate[] = [
@@ -209,6 +210,13 @@ export const customInstructionTemplates: CustomInstructionTemplate[] = [
 新規ユーザーと既存開発者両方にとって有用なドキュメントを作成し、プロジェクトの理解と貢献を促進してください。`,
     category: "documentation",
     tags: ["documentation", "readme", "api-docs", "user-guide"],
+    directions: [
+      "詳細な説明を追加",
+      "簡潔にスリム化",
+      "実例・サンプルを重視",
+      "構造を整理・再編成",
+      "視覚的要素を追加",
+    ],
   },
   {
     id: "dependency-management",

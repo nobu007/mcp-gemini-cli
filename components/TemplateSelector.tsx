@@ -27,6 +27,7 @@ export default function TemplateSelector({
 }: TemplateSelectorProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [expandedTemplate, setExpandedTemplate] = useState<string | null>(null);
+  const [selectedDirections, setSelectedDirections] = useState<{[key: string]: string}>({});
 
   const categories = Array.from(
     new Set(customInstructionTemplates.map((t) => t.category)),
@@ -40,7 +41,21 @@ export default function TemplateSelector({
         );
 
   const handleTemplateSelect = (template: CustomInstructionTemplate) => {
-    onTemplateSelect(template.instruction);
+    let instruction = template.instruction;
+    const selectedDirection = selectedDirections[template.id];
+    
+    if (selectedDirection && template.directions) {
+      instruction += `\n\n【修正方向性】: ${selectedDirection}の観点を重視して上記の作業を行ってください。`;
+    }
+    
+    onTemplateSelect(instruction);
+  };
+
+  const handleDirectionChange = (templateId: string, direction: string) => {
+    setSelectedDirections(prev => ({
+      ...prev,
+      [templateId]: direction
+    }));
   };
 
   const toggleExpanded = (templateId: string) => {
@@ -122,6 +137,31 @@ export default function TemplateSelector({
                   </span>
                 )}
               </div>
+
+              {/* Direction Selection */}
+              {template.directions && template.directions.length > 0 && (
+                <div className="space-y-2">
+                  <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    修正方向性を選択:
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {template.directions.map((direction) => (
+                      <button
+                        key={direction}
+                        type="button"
+                        onClick={() => handleDirectionChange(template.id, direction)}
+                        className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+                          selectedDirections[template.id] === direction
+                            ? "bg-primary-500 text-white"
+                            : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+                        }`}
+                      >
+                        {direction}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Expanded content */}
               {expandedTemplate === template.id && (
