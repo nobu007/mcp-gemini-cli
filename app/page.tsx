@@ -10,6 +10,7 @@ export default function Home() {
   const [chatResult, setChatResult] = useState("");
   const [loading, setLoading] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
+  const [workingDirectory, setWorkingDirectory] = useState("");
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
@@ -23,6 +24,7 @@ export default function Home() {
           query: searchQuery,
           yolo: true,
           limit: 5,
+          ...(workingDirectory && { workingDirectory }),
         }),
       });
 
@@ -50,6 +52,7 @@ export default function Home() {
         body: JSON.stringify({
           prompt: chatPrompt,
           yolo: true,
+          ...(workingDirectory && { workingDirectory }),
         }),
       });
 
@@ -94,6 +97,25 @@ export default function Home() {
           <TemplateSelector onTemplateSelect={handleTemplateSelect} />
         </div>
       )}
+
+      {/* Working Directory Section */}
+      <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+        <label htmlFor="workingDirectory" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Working Directory (Optional)
+        </label>
+        <input
+          id="workingDirectory"
+          type="text"
+          value={workingDirectory}
+          onChange={(e) => setWorkingDirectory(e.target.value)}
+          placeholder="/path/to/working/directory"
+          className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+        />
+        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          Specify a working directory for gemini-cli execution. Leave empty to
+          use the default directory.
+        </p>
+      </div>
 
       <div className="grid md:grid-cols-2 gap-8">
         {/* Google Search Section */}

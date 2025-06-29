@@ -9,6 +9,7 @@ const SearchRequestSchema = z.object({
   sandbox: z.boolean().optional(),
   yolo: z.boolean().optional(),
   model: z.string().optional(),
+  workingDirectory: z.string().optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -22,6 +23,7 @@ export async function POST(request: NextRequest) {
       sandbox: validatedData.sandbox,
       yolo: validatedData.yolo,
       model: validatedData.model,
+      workingDirectory: validatedData.workingDirectory,
     });
 
     return NextResponse.json(result);
@@ -67,6 +69,7 @@ export async function GET(request: NextRequest) {
       sandbox: searchParams.get("sandbox") === "true",
       yolo: searchParams.get("yolo") === "true",
       model: searchParams.get("model") || undefined,
+      workingDirectory: searchParams.get("workingDirectory") || undefined,
     });
 
     return NextResponse.json(result);
