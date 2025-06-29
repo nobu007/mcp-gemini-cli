@@ -53,7 +53,12 @@ export const customInstructionTemplates: CustomInstructionTemplate[] = [
 
 各改善提案について、現状の問題点、改善後の利点、実装の複雑さを明確に説明してください。`,
     category: "development",
-    tags: ["architecture", "design-patterns", "code-organization", "refactoring"],
+    tags: [
+      "architecture",
+      "design-patterns",
+      "code-organization",
+      "refactoring",
+    ],
     directions: [
       "ステップバイステップで論理的に",
       "批判的思考で詳細に検証",
@@ -459,7 +464,12 @@ DRY原則を適切に適用し、過度な抽象化を避けながら保守性�
 
 各関数について、分割前後の比較と改善効果を明確に示してください。`,
     category: "refactoring",
-    tags: ["method-extraction", "function-splitting", "readability", "complexity"],
+    tags: [
+      "method-extraction",
+      "function-splitting",
+      "readability",
+      "complexity",
+    ],
     directions: [
       "ステップバイステップで論理的に",
       "批判的思考で詳細に検証",
@@ -512,7 +522,12 @@ DRY原則を適切に適用し、過度な抽象化を避けながら保守性�
 
 移行のリスクとコスト、段階的移行計画も含めて総合的な提案を行ってください。`,
     category: "architecture",
-    tags: ["microservices", "domain-driven-design", "distributed-systems", "scalability"],
+    tags: [
+      "microservices",
+      "domain-driven-design",
+      "distributed-systems",
+      "scalability",
+    ],
     directions: [
       "ステップバイステップで論理的に",
       "批判的思考で詳細に検証",
@@ -1028,7 +1043,12 @@ DRY原則を適切に適用し、過度な抽象化を避けながら保守性�
 
 現在のセキュリティ要件に基づいた改善計画を策定してください。`,
     category: "security",
-    tags: ["authentication", "authorization", "session-management", "access-control"],
+    tags: [
+      "authentication",
+      "authorization",
+      "session-management",
+      "access-control",
+    ],
     directions: [
       "ステップバイステップで論理的に",
       "批判的思考で詳細に検証",
@@ -1083,7 +1103,7 @@ DRY原則を適切に適用し、過度な抽象化を避けながら保守性�
     directions: [
       "ステップバイステップで論理的に",
       "批判的思考で詳細に検証",
-      "実践的かつ具体的に",  
+      "実践的かつ具体的に",
       "包括的で網羅的に",
       "効率重視で優先度順に",
       "法的リスクを最重要視して",
@@ -1191,12 +1211,12 @@ DRY原則を適切に適用し、過度な抽象化を避けながら保守性�
       "包括的で網羅的に",
       "効率重視で優先度順に",
       "データベース固有性を重視して",
-      "運用コストを考慮して", 
+      "運用コストを考慮して",
       "検討のみをドキュメントに記録",
     ],
   },
   {
-    id: "caching-strategy-implementation", 
+    id: "caching-strategy-implementation",
     title: "キャッシュ戦略実装・最適化",
     description:
       "効果的なキャッシュ戦略を設計・実装し、アプリケーションパフォーマンスを大幅に向上させます",
@@ -1287,7 +1307,12 @@ DRY原則を適切に適用し、過度な抽象化を避けながら保守性�
 
 長期的に維持可能な高品質ドキュメント体系を構築してください。`,
     category: "documentation",
-    tags: ["documentation", "user-guide", "developer-docs", "knowledge-management"],
+    tags: [
+      "documentation",
+      "user-guide",
+      "developer-docs",
+      "knowledge-management",
+    ],
     directions: [
       "詳細な説明を重視して",
       "簡潔性とのバランスを取って",
@@ -1337,7 +1362,7 @@ DRY原則を適切に適用し、過度な抽象化を避けながら保守性�
    - コミュニティとサポート
 
 開発者が迅速に理解し、効果的にAPIを活用できるドキュメントを作成してください。`,
-    category: "documentation", 
+    category: "documentation",
     tags: ["api-docs", "developer-experience", "openapi", "swagger"],
     directions: [
       "開発者体験を最重要視",
