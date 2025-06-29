@@ -148,9 +148,10 @@ export const GeminiChatParametersSchema = z.object({
 export async function executeGoogleSearch(args: unknown, allowNpx = false) {
   const parsedArgs = GoogleSearchParametersSchema.parse(args);
   const geminiCliCmd = await decideGeminiCliCommand(allowNpx);
-  
+
   // Use provided working directory or environment variable default
-  const workingDir = parsedArgs.workingDirectory || process.env.GEMINI_CLI_WORKING_DIR;
+  const workingDir =
+    parsedArgs.workingDirectory || process.env.GEMINI_CLI_WORKING_DIR;
 
   // Build prompt based on options
   let prompt: string;
@@ -214,10 +215,11 @@ export async function executeGoogleSearch(args: unknown, allowNpx = false) {
 export async function executeGeminiChat(args: unknown, allowNpx = false) {
   const parsedArgs = GeminiChatParametersSchema.parse(args);
   const geminiCliCmd = await decideGeminiCliCommand(allowNpx);
-  
+
   // Use provided working directory or environment variable default
-  const workingDir = parsedArgs.workingDirectory || process.env.GEMINI_CLI_WORKING_DIR;
-  
+  const workingDir =
+    parsedArgs.workingDirectory || process.env.GEMINI_CLI_WORKING_DIR;
+
   const cliArgs = ["-p", parsedArgs.prompt];
   if (parsedArgs.sandbox) {
     cliArgs.push("-s");

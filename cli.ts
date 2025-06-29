@@ -66,7 +66,9 @@ async function startMcpServer() {
         workingDirectory: z
           .string()
           .optional()
-          .describe("Working directory path for gemini-cli execution (optional)."),
+          .describe(
+            "Working directory path for gemini-cli execution (optional).",
+          ),
       },
     },
     async (args) => {
@@ -106,7 +108,9 @@ async function startMcpServer() {
         workingDirectory: z
           .string()
           .optional()
-          .describe("Working directory path for gemini-cli execution (optional)."),
+          .describe(
+            "Working directory path for gemini-cli execution (optional).",
+          ),
       },
     },
     async (args) => {

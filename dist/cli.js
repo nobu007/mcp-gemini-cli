@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-#!/usr/bin/env node
+$#!/usr/bin/env node
 
 import { createRequire } from "node:module";
 var __create = Object.create;
@@ -13165,12 +13165,13 @@ async function decideGeminiCliCommand(allowNpx) {
     });
   });
 }
-async function executeGeminiCli(geminiCliCommand, args, timeoutMs = Number.parseInt(process.env.GEMINI_CLI_TIMEOUT_MS || "60000")) {
+async function executeGeminiCli(geminiCliCommand, args, timeoutMs = Number.parseInt(process.env.GEMINI_CLI_TIMEOUT_MS || "60000"), workingDirectory) {
   const { command, initialArgs } = geminiCliCommand;
   const commandArgs = [...initialArgs, ...args];
   return new Promise((resolve, reject) => {
     const child = spawn(command, commandArgs, {
-      stdio: ["pipe", "pipe", "pipe"]
+      stdio: ["pipe", "pipe", "pipe"],
+      cwd: workingDirectory || process.cwd()
     });
     let stdout = "";
     let stderr = "";
@@ -13215,17 +13216,20 @@ var GoogleSearchParametersSchema = exports_external.object({
   raw: exports_external.boolean().optional().describe("Return raw search results with URLs and snippets (optional)."),
   sandbox: exports_external.boolean().optional().describe("Run gemini-cli in sandbox mode."),
   yolo: exports_external.boolean().optional().describe("Automatically accept all actions (aka YOLO mode)."),
-  model: exports_external.string().optional().describe('The Gemini model to use. Recommended: "gemini-2.5-pro" (default) or "gemini-2.5-flash". Both models are confirmed to work with Google login.')
+  model: exports_external.string().optional().describe('The Gemini model to use. Recommended: "gemini-2.5-pro" (default) or "gemini-2.5-flash". Both models are confirmed to work with Google login.'),
+  workingDirectory: exports_external.string().optional().describe("Working directory path for gemini-cli execution (optional).")
 });
 var GeminiChatParametersSchema = exports_external.object({
   prompt: exports_external.string().describe("The prompt for the chat conversation."),
   sandbox: exports_external.boolean().optional().describe("Run gemini-cli in sandbox mode."),
   yolo: exports_external.boolean().optional().describe("Automatically accept all actions (aka YOLO mode)."),
-  model: exports_external.string().optional().describe('The Gemini model to use. Recommended: "gemini-2.5-pro" (default) or "gemini-2.5-flash". Both models are confirmed to work with Google login.')
+  model: exports_external.string().optional().describe('The Gemini model to use. Recommended: "gemini-2.5-pro" (default) or "gemini-2.5-flash". Both models are confirmed to work with Google login.'),
+  workingDirectory: exports_external.string().optional().describe("Working directory path for gemini-cli execution (optional).")
 });
 async function executeGoogleSearch(args, allowNpx = false) {
   const parsedArgs = GoogleSearchParametersSchema.parse(args);
   const geminiCliCmd = await decideGeminiCliCommand(allowNpx);
+  const workingDir = parsedArgs.workingDirectory || process.env.GEMINI_CLI_WORKING_DIR;
   let prompt;
   if (parsedArgs.raw) {
     const limitText = parsedArgs.limit ? ` Limit to ${parsedArgs.limit} sources.` : "";
@@ -13247,7 +13251,7 @@ async function executeGoogleSearch(args, allowNpx = false) {
     cliArgs.push("-m", parsedArgs.model);
   }
   const searchTimeout = Number.parseInt(process.env.GEMINI_CLI_SEARCH_TIMEOUT_MS || "30000");
-  const result = await executeGeminiCli(geminiCliCmd, cliArgs, searchTimeout);
+  const result = await executeGeminiCli(geminiCliCmd, cliArgs, searchTimeout, workingDir);
   if (parsedArgs.raw) {
     try {
       const jsonString = result.replace(/^```json\n|```$/g, "").trim();
@@ -13262,6 +13266,7 @@ async function executeGoogleSearch(args, allowNpx = false) {
 async function executeGeminiChat(args, allowNpx = false) {
   const parsedArgs = GeminiChatParametersSchema.parse(args);
   const geminiCliCmd = await decideGeminiCliCommand(allowNpx);
+  const workingDir = parsedArgs.workingDirectory || process.env.GEMINI_CLI_WORKING_DIR;
   const cliArgs = ["-p", parsedArgs.prompt];
   if (parsedArgs.sandbox) {
     cliArgs.push("-s");
@@ -13272,7 +13277,7 @@ async function executeGeminiChat(args, allowNpx = false) {
   if (parsedArgs.model) {
     cliArgs.push("-m", parsedArgs.model);
   }
-  const result = await executeGeminiCli(geminiCliCmd, cliArgs);
+  const result = await executeGeminiCli(geminiCliCmd, cliArgs, 60000, workingDir);
   return result;
 }
 async function main() {
@@ -13345,7 +13350,8 @@ async function startMcpServer() {
       raw: exports_external.boolean().optional().describe("Return raw search results with URLs and snippets (optional)."),
       sandbox: exports_external.boolean().optional().describe("Run gemini-cli in sandbox mode."),
       yolo: exports_external.boolean().optional().describe("Automatically accept all actions (aka YOLO mode)."),
-      model: exports_external.string().optional().describe('The Gemini model to use. Recommended: "gemini-2.5-pro" (default) or "gemini-2.5-flash". Both models are confirmed to work with Google login.')
+      model: exports_external.string().optional().describe('The Gemini model to use. Recommended: "gemini-2.5-pro" (default) or "gemini-2.5-flash". Both models are confirmed to work with Google login.'),
+      workingDirectory: exports_external.string().optional().describe("Working directory path for gemini-cli execution (optional).")
     }
   }, async (args) => {
     const result = await executeGoogleSearch(args, allowNpx);
@@ -13364,7 +13370,8 @@ async function startMcpServer() {
       prompt: exports_external.string().describe("The prompt for the chat conversation."),
       sandbox: exports_external.boolean().optional().describe("Run gemini-cli in sandbox mode."),
       yolo: exports_external.boolean().optional().describe("Automatically accept all actions (aka YOLO mode)."),
-      model: exports_external.string().optional().describe('The Gemini model to use. Recommended: "gemini-2.5-pro" (default) or "gemini-2.5-flash". Both models are confirmed to work with Google login.')
+      model: exports_external.string().optional().describe('The Gemini model to use. Recommended: "gemini-2.5-pro" (default) or "gemini-2.5-flash". Both models are confirmed to work with Google login.'),
+      workingDirectory: exports_external.string().optional().describe("Working directory path for gemini-cli execution (optional).")
     }
   }, async (args) => {
     const result = await executeGeminiChat(args, allowNpx);
@@ -13384,5 +13391,5 @@ if (__require.main == __require.module) {
   startMcpServer().catch(console.error);
 }
 
-//# debugId=D86B058FF3A0899164756E2164756E21
+//# debugId=E8D7E6FF448067DC64756E2164756E21
 //# sourceMappingURL=cli.js.map
