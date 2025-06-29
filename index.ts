@@ -2,7 +2,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { spawn } from "node:child_process";
 import { z } from "zod";
-import { TIMEOUT_CONFIG } from "./config.js";
+import { TIMEOUT_CONFIG } from "./config";
 
 // Function to determine the gemini-cli command and its initial arguments
 export async function decideGeminiCliCommand(
