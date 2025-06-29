@@ -10,14 +10,24 @@ A simple MCP server wrapper for Google's Gemini CLI, enabling AI assistants to u
 
 ## 🚀 Quick Start
 
-For detailed setup and usage instructions, please see the [**Quick Start Guide**](./docs/QUICKSTART.md).
+Run the server with `npx` without a local installation.
+
+```bash
+claude mcp add -s project gemini-cli -- npx @nobu007/mcp-gemini-cli --allow-npx
+```
+
+**Example Prompts:**
+
+- **Search**: `Use Google to search for the latest TypeScript 5.0 features`
+- **Chat**: `Ask Gemini to explain the difference between JavaScript async/await and promises`
+
+For more detailed instructions, including local setup, see the [**Usage Guide**](./docs/USAGE.md).
 
 ## 📚 Documentation
 
+- [**Usage Guide**](./docs/USAGE.md)
 - [**API Reference**](./docs/API.md)
 - [**Architecture**](./docs/ARCHITECTURE.md)
-- [**Development Guide**](./docs/DEVELOPMENT.md)
-- [**Troubleshooting**](./docs/TROUBLESHOOTING.md)
 
 ## 🤝 Contributing
 

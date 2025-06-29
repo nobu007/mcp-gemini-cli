@@ -10,14 +10,24 @@ GoogleのGemini CLIをラップするシンプルなMCPサーバーです。AI�
 
 ## 🚀 クイックスタート
 
-詳細なセットアップと使用方法については、[**クイックスタートガイド**](./docs/QUICKSTART.md)をご覧ください。
+`npx` を使って、ローカルにインストールすることなくサーバーを実行できます。
+
+```bash
+claude mcp add -s project gemini-cli -- npx @nobu007/mcp-gemini-cli --allow-npx
+```
+
+**プロンプト例:**
+
+- **検索**: `Googleで最新のTypeScript 5.0の機能について検索して`
+- **チャット**: `JavaScriptのasync/awaitとPromiseの違いをGeminiに説明させて`
+
+ローカルでのセットアップなど、より詳細な手順については、[**利用ガイド**](./docs/USAGE.md)をご覧ください。
 
 ## 📚 ドキュメント
 
+- [**利用ガイド**](./docs/USAGE.md)
 - [**APIリファレンス**](./docs/API.md)
 - [**アーキテクチャ**](./docs/ARCHITECTURE.md)
-- [**開発ガイド**](./docs/DEVELOPMENT.md)
-- [**トラブルシューティング**](./docs/TROUBLESHOOTING.md)
 
 ## 🤝 コントリビューション
 
