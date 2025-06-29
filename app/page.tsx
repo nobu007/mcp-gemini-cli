@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import TemplateSelector from "../components/TemplateSelector";
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -8,6 +9,7 @@ export default function Home() {
   const [searchResult, setSearchResult] = useState("");
   const [chatResult, setChatResult] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(false);
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
@@ -56,11 +58,34 @@ export default function Home() {
     }
   };
 
+  const handleTemplateSelect = (instruction: string) => {
+    setChatPrompt(instruction);
+    setShowTemplates(false);
+  };
+
   return (
-    <div className="container mx-auto p-6 max-w-4xl">
+    <div className="container mx-auto p-6 max-w-6xl">
       <h1 className="text-3xl font-bold mb-8 text-center text-gray-900 dark:text-white">
         MCP Gemini CLI Web Interface
       </h1>
+
+      {/* Template Toggle */}
+      <div className="mb-6 text-center">
+        <button
+          type="button"
+          onClick={() => setShowTemplates(!showTemplates)}
+          className="px-6 py-3 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors font-medium"
+        >
+          {showTemplates ? 'テンプレートを閉じる' : '開発テンプレートを表示'}
+        </button>
+      </div>
+
+      {/* Template Selector */}
+      {showTemplates && (
+        <div className="mb-8 p-6 bg-gray-50 dark:bg-gray-800 rounded-lg">
+          <TemplateSelector onTemplateSelect={handleTemplateSelect} />
+        </div>
+      )}
 
       <div className="grid md:grid-cols-2 gap-8">
         {/* Google Search Section */}
@@ -105,8 +130,8 @@ export default function Home() {
             <textarea
               value={chatPrompt}
               onChange={(e) => setChatPrompt(e.target.value)}
-              placeholder="Enter your prompt..."
-              rows={3}
+              placeholder="Enter your prompt or select a template above..."
+              rows={5}
               className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
             />
             <button
