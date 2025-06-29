@@ -102,9 +102,11 @@ Gemini CLI を使用して Google 検索を実行します。
 
 - `query` (必須): 検索クエリ
 - `limit` (任意): 最大結果数
+- `raw` (任意): 構造化された結果を返す
 - `sandbox` (任意): サンドボックスモードで実行
 - `yolo` (任意): 確認をスキップ
 - `model` (任意): 使用する Gemini モデル (デフォルト: "gemini-2.5-pro")
+- `workingDirectory` (任意): gemini-cli 実行用の作業ディレクトリパス
 
 ### 2. geminiChat
 
@@ -116,6 +118,7 @@ Gemini との会話を行います。
 - `sandbox` (任意): サンドボックスモードで実行
 - `yolo` (任意): 確認をスキップ
 - `model` (任意): 使用する Gemini モデル (デフォルト: "gemini-2.5-pro")
+- `workingDirectory` (任意): gemini-cli 実行用の作業ディレクトリパス
 
 ## 💡 プロンプト例
 
@@ -137,6 +140,19 @@ googleSearch({
   query: "TypeScript ベストプラクティス",
   limit: 5,
 });
+
+// 構造化された結果
+googleSearch({
+  query: "React 最新機能",
+  raw: true,
+  limit: 3,
+});
+
+// 特定の作業ディレクトリで検索
+googleSearch({
+  query: "このコードベースのアーキテクチャを分析して",
+  workingDirectory: "/path/to/project",
+});
 ```
 
 ### geminiChat
@@ -149,6 +165,12 @@ geminiChat({ prompt: "量子コンピューティングを簡単な言葉で説�
 geminiChat({
   prompt: "プログラミングについての俳句を書いて",
   model: "gemini-2.5-flash",
+});
+
+// 特定の作業ディレクトリでチャット
+geminiChat({
+  prompt: "このプロジェクトの main.js ファイルをレビューして",
+  workingDirectory: "/path/to/project",
 });
 ```
 
@@ -164,6 +186,9 @@ export GEMINI_CLI_TIMEOUT_MS=120000
 
 # Google検索操作専用のタイムアウト（デフォルト: 30秒）
 export GEMINI_CLI_SEARCH_TIMEOUT_MS=45000
+
+# gemini-cli 実行用のデフォルト作業ディレクトリ
+export GEMINI_CLI_WORKING_DIR=/path/to/your/project
 ```
 
 ## 📝 開発

@@ -106,6 +106,7 @@ Perform Google searches using the Gemini CLI.
 - `sandbox` (optional): Run in sandbox mode
 - `yolo` (optional): Skip confirmation
 - `model` (optional): Gemini model to use (default: "gemini-2.5-pro")
+- `workingDirectory` (optional): Working directory path for gemini-cli execution
 
 ### 2. geminiChat
 
@@ -117,6 +118,7 @@ Converse with Gemini.
 - `sandbox` (optional): Run in sandbox mode
 - `yolo` (optional): Skip confirmation
 - `model` (optional): Gemini model to use (default: "gemini-2.5-pro")
+- `workingDirectory` (optional): Working directory path for gemini-cli execution
 
 ## 💡 Example Prompts
 
@@ -145,6 +147,12 @@ googleSearch({
   raw: true,
   limit: 3,
 });
+
+// Search with specific working directory
+googleSearch({
+  query: "analyze this codebase architecture",
+  workingDirectory: "/path/to/project",
+});
 ```
 
 ### geminiChat
@@ -157,6 +165,12 @@ geminiChat({ prompt: "Explain quantum computing in simple terms" });
 geminiChat({
   prompt: "Write a haiku about programming",
   model: "gemini-2.5-flash",
+});
+
+// Chat with specific working directory
+geminiChat({
+  prompt: "Review the main.js file in this project",
+  workingDirectory: "/path/to/project",
 });
 ```
 
@@ -172,6 +186,9 @@ export GEMINI_CLI_TIMEOUT_MS=120000
 
 # Timeout specifically for Google Search operations (default: 30 seconds)
 export GEMINI_CLI_SEARCH_TIMEOUT_MS=45000
+
+# Default working directory for gemini-cli execution
+export GEMINI_CLI_WORKING_DIR=/path/to/your/project
 ```
 
 ## 📝 Development
