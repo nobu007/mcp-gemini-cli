@@ -27,7 +27,9 @@ export default function TemplateSelector({
 }: TemplateSelectorProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [expandedTemplate, setExpandedTemplate] = useState<string | null>(null);
-  const [selectedDirections, setSelectedDirections] = useState<{[key: string]: string}>({});
+  const [selectedDirections, setSelectedDirections] = useState<{
+    [key: string]: string;
+  }>({});
 
   const categories = Array.from(
     new Set(customInstructionTemplates.map((t) => t.category)),
@@ -43,18 +45,18 @@ export default function TemplateSelector({
   const handleTemplateSelect = (template: CustomInstructionTemplate) => {
     let instruction = template.instruction;
     const selectedDirection = selectedDirections[template.id];
-    
+
     if (selectedDirection && template.directions) {
       instruction += `\n\n【修正方向性】: ${selectedDirection}の観点を重視して上記の作業を行ってください。`;
     }
-    
+
     onTemplateSelect(instruction);
   };
 
   const handleDirectionChange = (templateId: string, direction: string) => {
-    setSelectedDirections(prev => ({
+    setSelectedDirections((prev) => ({
       ...prev,
-      [templateId]: direction
+      [templateId]: direction,
     }));
   };
 
@@ -149,7 +151,9 @@ export default function TemplateSelector({
                       <button
                         key={direction}
                         type="button"
-                        onClick={() => handleDirectionChange(template.id, direction)}
+                        onClick={() =>
+                          handleDirectionChange(template.id, direction)
+                        }
                         className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
                           selectedDirections[template.id] === direction
                             ? "bg-primary-500 text-white"
