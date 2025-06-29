@@ -13143,6 +13143,20 @@ class StdioServerTransport {
 
 // index.ts
 import { spawn } from "node:child_process";
+
+// config.ts
+var DEFAULT_TIMEOUTS = {
+  CHAT: 600000,
+  SEARCH: 60000,
+  DEFAULT: 60000
+};
+var TIMEOUT_CONFIG = {
+  CHAT_TIMEOUT_MS: Number.parseInt(process.env.GEMINI_CLI_CHAT_TIMEOUT_MS || DEFAULT_TIMEOUTS.CHAT.toString()),
+  SEARCH_TIMEOUT_MS: Number.parseInt(process.env.GEMINI_CLI_SEARCH_TIMEOUT_MS || DEFAULT_TIMEOUTS.SEARCH.toString()),
+  DEFAULT_TIMEOUT_MS: Number.parseInt(process.env.GEMINI_CLI_TIMEOUT_MS || DEFAULT_TIMEOUTS.DEFAULT.toString())
+};
+
+// index.ts
 async function decideGeminiCliCommand(allowNpx) {
   return new Promise((resolve, reject) => {
     const child = spawn("which", ["gemini"]);
@@ -13163,7 +13177,7 @@ async function decideGeminiCliCommand(allowNpx) {
     });
   });
 }
-async function executeGeminiCli(geminiCliCommand, args, timeoutMs = Number.parseInt(process.env.GEMINI_CLI_TIMEOUT_MS || "60000"), workingDirectory) {
+async function executeGeminiCli(geminiCliCommand, args, timeoutMs = TIMEOUT_CONFIG.DEFAULT_TIMEOUT_MS, workingDirectory) {
   const { command, initialArgs } = geminiCliCommand;
   const commandArgs = [...initialArgs, ...args];
   return new Promise((resolve, reject) => {
@@ -13248,7 +13262,7 @@ async function executeGoogleSearch(args, allowNpx = false) {
   if (parsedArgs.model) {
     cliArgs.push("-m", parsedArgs.model);
   }
-  const searchTimeout = Number.parseInt(process.env.GEMINI_CLI_SEARCH_TIMEOUT_MS || "30000");
+  const searchTimeout = TIMEOUT_CONFIG.SEARCH_TIMEOUT_MS;
   const result = await executeGeminiCli(geminiCliCmd, cliArgs, searchTimeout, workingDir);
   if (parsedArgs.raw) {
     try {
@@ -13275,7 +13289,7 @@ async function executeGeminiChat(args, allowNpx = false) {
   if (parsedArgs.model) {
     cliArgs.push("-m", parsedArgs.model);
   }
-  const result = await executeGeminiCli(geminiCliCmd, cliArgs, 60000, workingDir);
+  const result = await executeGeminiCli(geminiCliCmd, cliArgs, TIMEOUT_CONFIG.CHAT_TIMEOUT_MS, workingDir);
   return result;
 }
 async function main() {
@@ -13334,5 +13348,5 @@ export {
   GeminiChatParametersSchema
 };
 
-//# debugId=D71DF11A06BE089464756E2164756E21
+//# debugId=E0C415B8899A945264756E2164756E21
 //# sourceMappingURL=index.js.map
