@@ -2,6 +2,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { spawn } from "node:child_process";
 import { z } from "zod";
+import { TIMEOUT_CONFIG } from "./config.js";
 
 // Function to determine the gemini-cli command and its initial arguments
 export async function decideGeminiCliCommand(
@@ -35,9 +36,7 @@ export async function decideGeminiCliCommand(
 export async function executeGeminiCli(
   geminiCliCommand: { command: string; initialArgs: string[] },
   args: string[],
-  timeoutMs: number = Number.parseInt(
-    process.env.GEMINI_CLI_TIMEOUT_MS || "60000",
-  ), // 環境変数で設定可能、デフォルト60秒
+  timeoutMs: number = TIMEOUT_CONFIG.DEFAULT_TIMEOUT_MS,
   workingDirectory?: string,
 ): Promise<string> {
   const { command, initialArgs } = geminiCliCommand;
@@ -183,9 +182,7 @@ export async function executeGoogleSearch(args: unknown, allowNpx = false) {
   }
 
   // Google検索用のタイムアウト設定（環境変数で変更可能）
-  const searchTimeout = Number.parseInt(
-    process.env.GEMINI_CLI_SEARCH_TIMEOUT_MS || "30000",
-  );
+  const searchTimeout = TIMEOUT_CONFIG.SEARCH_TIMEOUT_MS;
   const result = await executeGeminiCli(
     geminiCliCmd,
     cliArgs,
@@ -233,7 +230,7 @@ export async function executeGeminiChat(args: unknown, allowNpx = false) {
   const result = await executeGeminiCli(
     geminiCliCmd,
     cliArgs,
-    60000,
+    TIMEOUT_CONFIG.CHAT_TIMEOUT_MS,
     workingDir,
   );
   return result;
