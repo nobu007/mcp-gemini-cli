@@ -4,8 +4,8 @@ Thank you for your interest in contributing! We welcome bug reports, feature sug
 
 ## How to Contribute
 
-1.  **Open an Issue**: Discuss bugs or new features by opening an issue.
-2.  **Fork & Create a Pull Request**: Make your changes and submit a pull request.
+1. **Open an Issue**: Discuss bugs or new features by opening an issue.
+2. **Fork & Create a Pull Request**: Make your changes and submit a pull request.
 
 ## Development
 
