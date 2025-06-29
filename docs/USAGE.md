@@ -28,37 +28,39 @@ For those who want to contribute or run the server locally.
 
 ### Installation
 
-1.  **Clone the repository:**
+1. **Clone the repository:**
+
     ```bash
     git clone https://github.com/nobu007/mcp-gemini-cli.git
     cd mcp-gemini-cli
     ```
 
-2.  **Install dependencies:**
+2. **Install dependencies:**
+
     ```bash
     npm install
     ```
 
 ### Running the Application
 
--   **MCP Server Mode**: `npm run dev`
--   **Web Development Mode**: `npm run web:dev` (Access at `http://localhost:3000`)
+- **MCP Server Mode**: `npm run dev`
+- **Web Development Mode**: `npm run web:dev` (Access at `http://localhost:3000`)
 
 ### Development Scripts
 
--   `npm test`: Run tests.
--   `npm run build`: Create a development build.
--   `npm run build:prod`: Create a minified production build.
--   `npm run lint`: Lint the code.
--   `npm run format`: Format the code.
+- `npm test`: Run tests.
+- `npm run build`: Create a development build.
+- `npm run build:prod`: Create a minified production build.
+- `npm run lint`: Lint the code.
+- `npm run format`: Format the code.
 
 ## ⚙️ Configuration
 
 Configure timeouts and the working directory via environment variables.
 
--   `GEMINI_CLI_TIMEOUT_MS`: Default timeout for all operations (default: 60s).
--   `GEMINI_CLI_SEARCH_TIMEOUT_MS`: Timeout for Google Search (default: 30s).
--   `GEMINI_CLI_WORKING_DIR`: Default working directory for `gemini-cli`.
+- `GEMINI_CLI_TIMEOUT_MS`: Default timeout for all operations (default: 60s).
+- `GEMINI_CLI_SEARCH_TIMEOUT_MS`: Timeout for Google Search (default: 30s).
+- `GEMINI_CLI_WORKING_DIR`: Default working directory for `gemini-cli`.
 
 **Example:**
 
@@ -68,7 +70,7 @@ export GEMINI_CLI_TIMEOUT_MS=120000
 
 ## ❓ Troubleshooting & FAQ
 
-### Q: I'm getting a timeout error.
+### Q: I'm getting a timeout error
 
 **A**: The default timeout is 60 seconds. You can increase it by setting the `GEMINI_CLI_TIMEOUT_MS` environment variable. For search-specific timeouts, use `GEMINI_CLI_SEARCH_TIMEOUT_MS`.
 
