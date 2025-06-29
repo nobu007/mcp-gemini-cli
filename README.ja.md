@@ -9,6 +9,56 @@ Google Gemini CLI のシンプルな MCP サーバーラッパーで、AI アシ
 - `googleSearch`: Gemini を使用して Google 検索を実行
 - `geminiChat`: Gemini との直接的な会話
 
+## アーキテクチャ
+
+このプロジェクトは、MCPサーバー（AIアシスタント用）と、UIおよびAPIを備えた標準的なWebサーバーという2つの異なるモードで動作します。
+
+```mermaid
+graph TD
+    subgraph "ユーザーインタラクション"
+        direction LR
+        A[AIアシスタント / Claude]
+        B[ブラウザ / HTTPクライアント]
+    end
+
+    subgraph "mcp-gemini-cli サーバー"
+        direction LR
+        C{デュアルモードサーバー}
+        D[MCPサーバーロジック]
+        E[Next.js Webサーバー]
+    end
+
+    subgraph "コアロジック"
+        direction LR
+        F[Gemini API ハンドラ]
+        G[Gemini CLI]
+    end
+
+    subgraph "外部サービス"
+        direction LR
+        H[Google Gemini API]
+    end
+
+    A -- MCP --> C
+    B -- HTTP/S --> C
+
+    C --"MCPモード"--> D
+    C --"Webモード"--> E
+
+    D --"実行"--> F
+    E --"呼び出し"--> F
+    F --"ラップ"--> G
+    G --"通信"--> H
+
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#ccf,stroke:#333,stroke-width:2px
+    style H fill:#cff,stroke:#333,stroke-width:2px
+```
+
+- **MCPサーバーモード**: AIアシスタント（例：Claude）がMCPサーバーにリクエストを送信し、それがコアのGemini APIハンドラによって処理されます。
+- **Web API / UIモード**: ユーザーはNext.jsで動作するWebインターフェースを操作したり、APIエンドポイントにリクエストを送信したりできます。Next.jsサーバーがこれらのリクエストを処理し、同じコアAPIハンドラを利用します。
+- **コアロジック**: 両方のモードで、Gemini CLIと対話するための同じ基盤ロジックを共有しており、一貫した動作を保証します。
+
 ## 前提条件
 
 - [Gemini CLI](https://github.com/google-gemini/gemini-cli) のインストールと設定 (--allow-npx フラグ使用時は任意)
@@ -40,15 +90,61 @@ npm run web:dev
 
 `http://localhost:3000` でブラウザから直接 Gemini CLI を使用できます。
 
-### Web API エンドポイント
+## APIリファレンス
+
+このサーバーは、Geminiサービスと対話するためのRESTful APIエンドポイントを提供します。
+
+### Google検索
+
+- **エンドポイント**: `/api/google-search`
+- **メソッド**: `POST`, `GET`
+- **説明**: Geminiを使用してGoogle検索を実行します。
+
+**POSTリクエストボディ (JSON):**
+
+| パラメータ | 型 | 必須 | 説明 |
+|---|---|---|---|
+| `query` | string | はい | 検索クエリ。 |
+| `limit` | number | いいえ | 最大結果数。 |
+| `raw` | boolean | いいえ | `true`の場合、構造化されたJSON結果を返します。 |
+| `sandbox` | boolean | いいえ | サンドボックスモードで実行します。 |
+| `yolo` | boolean | いいえ | 確認プロンプトをスキップします。 |
+| `model` | string | いいえ | 使用するGeminiモデル (例: "gemini-2.5-pro")。 |
+
+**GETクエリパラメータ:**
+
+`POST`の全パラメータは、`GET`リクエストのクエリパラメータとして使用できます。
+
+**使用例 (cURL):**
 
 ```bash
-# Google 検索
 curl -X POST http://localhost:3000/api/google-search \
   -H "Content-Type: application/json" \
   -d '{"query": "TypeScript ベストプラクティス", "limit": 5}'
+```
 
-# Gemini チャット
+### Geminiチャット
+
+- **エンドポイント**: `/api/gemini-chat`
+- **メソッド**: `POST`, `GET`
+- **説明**: Geminiと直接対話します。
+
+**POSTリクエストボディ (JSON):**
+
+| パラメータ | 型 | 必須 | 説明 |
+|---|---|---|---|
+| `prompt` | string | はい | Geminiに送信するプロンプト。 |
+| `sandbox` | boolean | いいえ | サンドボックスモードで実行します。 |
+| `yolo` | boolean | いいえ | 確認プロンプトをスキップします。 |
+| `model` | string | いいえ | 使用するGeminiモデル (例: "gemini-2.5-pro")。 |
+
+**GETクエリパラメータ:**
+
+`POST`の全パラメータは、`GET`リクエストのクエリパラメータとして使用できます。
+
+**使用例 (cURL):**
+
+```bash
 curl -X POST http://localhost:3000/api/gemini-chat \
   -H "Content-Type: application/json" \
   -d '{"prompt": "量子コンピューティングを簡単に説明して"}'

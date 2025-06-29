@@ -9,6 +9,56 @@ This server provides the following tools that integrate with the Gemini CLI:
 - `googleSearch`: Perform Google searches using Gemini
 - `geminiChat`: Direct conversation with Gemini
 
+## Architecture
+
+This project runs in two distinct modes: as an MCP server for AI assistants and as a standard web server with a UI and API.
+
+```mermaid
+graph TD
+    subgraph "User Interaction"
+        direction LR
+        A[AI Assistant / Claude]
+        B[Browser / HTTP Client]
+    end
+
+    subgraph "mcp-gemini-cli Server"
+        direction LR
+        C{Dual Mode Server}
+        D[MCP Server Logic]
+        E[Next.js Web Server]
+    end
+
+    subgraph "Core Logic"
+        direction LR
+        F[Gemini API Handlers]
+        G[Gemini CLI]
+    end
+
+    subgraph "External Services"
+        direction LR
+        H[Google Gemini API]
+    end
+
+    A -- MCP --> C
+    B -- HTTP/S --> C
+
+    C --"MCP Mode"--> D
+    C --"Web Mode"--> E
+
+    D --"Executes"--> F
+    E --"Calls"--> F
+    F --"Wraps"--> G
+    G --"Communicates"--> H
+
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#ccf,stroke:#333,stroke-width:2px
+    style H fill:#cff,stroke:#333,stroke-width:2px
+```
+
+- **MCP Server Mode**: An AI assistant (e.g., Claude) sends requests to the MCP server, which are processed by the core Gemini API handlers.
+- **Web API / UI Mode**: Users can interact with a Next.js-powered web interface or send requests to the API endpoints. The Next.js server handles these requests, utilizing the same core API handlers.
+- **Core Logic**: Both modes share the same underlying logic for interacting with the Gemini CLI, ensuring consistent behavior.
+
 ## Prerequisites
 
 - [Gemini CLI](https://github.com/google-gemini/gemini-cli) installation and configuration (optional when using --allow-npx flag)
@@ -40,15 +90,61 @@ npm run web:dev
 
 Access the Gemini CLI directly from your browser at `http://localhost:3000`.
 
-### Web API Endpoints
+## API Reference
+
+The server provides RESTful API endpoints for interacting with Gemini services.
+
+### Google Search
+
+- **Endpoint**: `/api/google-search`
+- **Method**: `POST`, `GET`
+- **Description**: Performs a Google search using Gemini.
+
+**POST Request Body (JSON):**
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `query` | string | Yes | The search query. |
+| `limit` | number | No | Maximum number of results. |
+| `raw` | boolean | No | If `true`, returns structured JSON results. |
+| `sandbox` | boolean | No | Run in sandbox mode. |
+| `yolo` | boolean | No | Skip confirmation prompts. |
+| `model` | string | No | Gemini model to use (e.g., "gemini-2.5-pro"). |
+
+**GET Query Parameters:**
+
+All `POST` parameters can be used as query parameters for `GET` requests.
+
+**Example (cURL):**
 
 ```bash
-# Google Search
 curl -X POST http://localhost:3000/api/google-search \
   -H "Content-Type: application/json" \
   -d '{"query": "TypeScript best practices", "limit": 5}'
+```
 
-# Gemini Chat
+### Gemini Chat
+
+- **Endpoint**: `/api/gemini-chat`
+- **Method**: `POST`, `GET`
+- **Description**: Engages in a direct conversation with Gemini.
+
+**POST Request Body (JSON):**
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `prompt` | string | Yes | The prompt to send to Gemini. |
+| `sandbox` | boolean | No | Run in sandbox mode. |
+| `yolo` | boolean | No | Skip confirmation prompts. |
+| `model` | string | No | Gemini model to use (e.g., "gemini-2.5-pro"). |
+
+**GET Query Parameters:**
+
+All `POST` parameters can be used as query parameters for `GET` requests.
+
+**Example (cURL):**
+
+```bash
 curl -X POST http://localhost:3000/api/gemini-chat \
   -H "Content-Type: application/json" \
   -d '{"prompt": "Explain quantum computing in simple terms"}'
