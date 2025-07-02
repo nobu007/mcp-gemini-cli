@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TemplateSelector from "../components/TemplateSelector";
 
 export default function Home() {
@@ -11,6 +11,24 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
   const [workingDirectory, setWorkingDirectory] = useState("");
+
+  // LocalStorageからWorking Directoryを復元
+  useEffect(() => {
+    const savedWorkingDirectory = localStorage.getItem("mcp-gemini-working-directory");
+    if (savedWorkingDirectory) {
+      setWorkingDirectory(savedWorkingDirectory);
+    }
+  }, []);
+
+  // Working Directoryが変更された時にLocalStorageに保存
+  const handleWorkingDirectoryChange = (value: string) => {
+    setWorkingDirectory(value);
+    if (value.trim()) {
+      localStorage.setItem("mcp-gemini-working-directory", value);
+    } else {
+      localStorage.removeItem("mcp-gemini-working-directory");
+    }
+  };
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
@@ -110,14 +128,24 @@ export default function Home() {
           id="workingDirectory"
           type="text"
           value={workingDirectory}
-          onChange={(e) => setWorkingDirectory(e.target.value)}
+          onChange={(e) => handleWorkingDirectoryChange(e.target.value)}
           placeholder="/path/to/working/directory"
           className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
         />
-        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-          Specify a working directory for gemini-cli execution. Leave empty to
-          use the default directory.
-        </p>
+        <div className="mt-2 flex items-center justify-between">
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Specify a working directory for gemini-cli execution. Values are automatically saved.
+          </p>
+          {workingDirectory && (
+            <button
+              type="button"
+              onClick={() => handleWorkingDirectoryChange("")}
+              className="text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 underline"
+            >
+              Clear
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="grid md:grid-cols-2 gap-8">
