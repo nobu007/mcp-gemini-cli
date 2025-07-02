@@ -186,8 +186,10 @@ export async function executeGoogleSearch(args: unknown, allowNpx = false) {
   // Prepare environment variables
   const envVars: Record<string, string> = {};
   if (parsedArgs.apiKey) {
+    // User-specified API key takes priority over system environment variables
     envVars.GEMINI_API_KEY = parsedArgs.apiKey;
   }
+  // If no API key is specified, system environment variables (process.env.GEMINI_API_KEY) will be used
 
   // Build prompt based on options
   let prompt: string;
@@ -264,8 +266,10 @@ export async function executeGeminiChat(args: unknown, allowNpx = false) {
   // Prepare environment variables
   const envVars: Record<string, string> = {};
   if (parsedArgs.apiKey) {
+    // User-specified API key takes priority over system environment variables
     envVars.GEMINI_API_KEY = parsedArgs.apiKey;
   }
+  // If no API key is specified, system environment variables (process.env.GEMINI_API_KEY) will be used
 
   const cliArgs = ["-p", parsedArgs.prompt];
   if (parsedArgs.sandbox) {
