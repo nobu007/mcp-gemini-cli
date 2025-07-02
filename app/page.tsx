@@ -11,12 +11,42 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
   const [workingDirectory, setWorkingDirectory] = useState("");
+  const [geminiApiKeys, setGeminiApiKeys] = useState<string[]>([]);
+  const [currentApiKeyIndex, setCurrentApiKeyIndex] = useState(0);
+  const [newApiKey, setNewApiKey] = useState("");
+  const [showApiKeyManager, setShowApiKeyManager] = useState(false);
 
   // LocalStorageからWorking Directoryを復元
   useEffect(() => {
-    const savedWorkingDirectory = localStorage.getItem("mcp-gemini-working-directory");
+    const savedWorkingDirectory = localStorage.getItem(
+      "mcp-gemini-working-directory",
+    );
     if (savedWorkingDirectory) {
       setWorkingDirectory(savedWorkingDirectory);
+    }
+
+    // Gemini API Keysを復元
+    const savedApiKeys = localStorage.getItem("mcp-gemini-api-keys");
+    if (savedApiKeys) {
+      try {
+        const parsedKeys = JSON.parse(savedApiKeys);
+        if (Array.isArray(parsedKeys) && parsedKeys.length > 0) {
+          setGeminiApiKeys(parsedKeys);
+        }
+      } catch (error) {
+        console.warn("Failed to parse saved API keys:", error);
+      }
+    }
+
+    // 現在のAPI Key indexを復元
+    const savedApiKeyIndex = localStorage.getItem(
+      "mcp-gemini-current-api-key-index",
+    );
+    if (savedApiKeyIndex) {
+      const index = Number.parseInt(savedApiKeyIndex, 10);
+      if (!Number.isNaN(index)) {
+        setCurrentApiKeyIndex(index);
+      }
     }
   }, []);
 
@@ -28,6 +58,43 @@ export default function Home() {
     } else {
       localStorage.removeItem("mcp-gemini-working-directory");
     }
+  };
+
+  // API Key管理関数
+  const saveApiKeys = (keys: string[]) => {
+    setGeminiApiKeys(keys);
+    localStorage.setItem("mcp-gemini-api-keys", JSON.stringify(keys));
+  };
+
+  const addApiKey = () => {
+    if (!newApiKey.trim()) return;
+    const updatedKeys = [...geminiApiKeys, newApiKey.trim()];
+    saveApiKeys(updatedKeys);
+    setNewApiKey("");
+  };
+
+  const removeApiKey = (index: number) => {
+    const updatedKeys = geminiApiKeys.filter((_, i) => i !== index);
+    saveApiKeys(updatedKeys);
+
+    // 現在選択中のインデックスを調整
+    if (currentApiKeyIndex >= updatedKeys.length) {
+      const newIndex = Math.max(0, updatedKeys.length - 1);
+      setCurrentApiKeyIndex(newIndex);
+      localStorage.setItem(
+        "mcp-gemini-current-api-key-index",
+        newIndex.toString(),
+      );
+    }
+  };
+
+  const switchApiKey = (index: number) => {
+    setCurrentApiKeyIndex(index);
+    localStorage.setItem("mcp-gemini-current-api-key-index", index.toString());
+  };
+
+  const getCurrentApiKey = () => {
+    return geminiApiKeys[currentApiKeyIndex] || "";
   };
 
   const handleSearch = async () => {
@@ -71,6 +138,7 @@ export default function Home() {
           prompt: chatPrompt,
           yolo: true,
           ...(workingDirectory && { workingDirectory }),
+          ...(getCurrentApiKey() && { apiKey: getCurrentApiKey() }),
         }),
       });
 
@@ -134,7 +202,8 @@ export default function Home() {
         />
         <div className="mt-2 flex items-center justify-between">
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            Specify a working directory for gemini-cli execution. Values are automatically saved.
+            Specify a working directory for gemini-cli execution. Values are
+            automatically saved.
           </p>
           {workingDirectory && (
             <button
@@ -146,6 +215,103 @@ export default function Home() {
             </button>
           )}
         </div>
+      </div>
+
+      {/* Gemini API Key Manager */}
+      <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            Gemini API Keys Management
+          </h3>
+          <button
+            type="button"
+            onClick={() => setShowApiKeyManager(!showApiKeyManager)}
+            className="text-sm text-yellow-600 hover:text-yellow-800 dark:text-yellow-400 dark:hover:text-yellow-300 underline"
+          >
+            {showApiKeyManager ? "Hide" : "Manage Keys"}
+          </button>
+        </div>
+
+        {geminiApiKeys.length > 0 && (
+          <div className="mb-3">
+            <label htmlFor="api-key-selector" className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+              Current API Key ({geminiApiKeys.length} keys available):
+            </label>
+            <select
+              id="api-key-selector"
+              value={currentApiKeyIndex}
+              onChange={(e) => switchApiKey(Number.parseInt(e.target.value))}
+              className="w-full p-2 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-yellow-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            >
+              {geminiApiKeys.map((key, index) => (
+                <option key={`api-key-${key.substring(0, 8)}-${index}`} value={index}>
+                  Key #{index + 1}: {key.substring(0, 8)}...
+                  {key.substring(key.length - 4)}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {showApiKeyManager && (
+          <div className="space-y-3 border-t border-yellow-200 dark:border-yellow-700 pt-3">
+            <div className="flex gap-2">
+              <input
+                type="password"
+                value={newApiKey}
+                onChange={(e) => setNewApiKey(e.target.value)}
+                placeholder="Enter new Gemini API Key..."
+                className="flex-1 p-2 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-yellow-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                onKeyPress={(e) => e.key === "Enter" && addApiKey()}
+              />
+              <button
+                type="button"
+                onClick={addApiKey}
+                disabled={!newApiKey.trim()}
+                className="px-4 py-2 text-sm bg-yellow-500 text-white rounded hover:bg-yellow-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              >
+                Add
+              </button>
+            </div>
+
+            {geminiApiKeys.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs text-gray-600 dark:text-gray-400">
+                  Saved API Keys:
+                </p>
+                {geminiApiKeys.map((key, index) => (
+                  <div
+                    key={`api-key-item-${key.substring(0, 8)}-${index}`}
+                    className="flex items-center justify-between p-2 bg-white dark:bg-gray-700 rounded border"
+                  >
+                    <span className="text-sm font-mono text-gray-700 dark:text-gray-300">
+                      #{index + 1}: {key.substring(0, 8)}...
+                      {key.substring(key.length - 4)}
+                      {index === currentApiKeyIndex && (
+                        <span className="ml-2 px-2 py-1 text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded">
+                          Current
+                        </span>
+                      )}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeApiKey(index)}
+                      className="text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+          {geminiApiKeys.length === 0
+            ? "No API keys configured. Add keys to enable Gemini chat functionality."
+            : `Using Key #${currentApiKeyIndex + 1}. Switch keys when rate limits are reached.`}
+        </p>
       </div>
 
       <div className="grid md:grid-cols-2 gap-8">
@@ -201,7 +367,9 @@ export default function Home() {
               disabled={loading || !chatPrompt.trim()}
               className="w-full bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors"
             >
-              {loading ? "Chatting..." : "Send to Gemini"}
+              {loading
+                ? "Chatting..."
+                : `Send to Gemini${getCurrentApiKey() ? ` (Key #${currentApiKeyIndex + 1})` : " (No API Key)"}`}
             </button>
             <div className="min-h-[200px] p-4 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800">
               <h3 className="font-medium mb-2 text-gray-700 dark:text-gray-300">
@@ -230,7 +398,7 @@ export default function Home() {
             <code className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-xs">
               POST /api/gemini-chat
             </code>{" "}
-            - Chat with Gemini
+            - Chat with Gemini (supports custom API key)
           </li>
           <li>
             <code className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-xs">
@@ -242,9 +410,14 @@ export default function Home() {
             <code className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-xs">
               GET /api/gemini-chat?prompt=...
             </code>{" "}
-            - Chat via GET
+            - Chat via GET (supports apiKey parameter)
           </li>
         </ul>
+        {geminiApiKeys.length > 0 && (
+          <p className="text-xs text-green-600 dark:text-green-400 mt-2">
+            ✓ {geminiApiKeys.length} Gemini API key(s) configured
+          </p>
+        )}
       </div>
     </div>
   );
