@@ -2,7 +2,10 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import TemplateSelector from "../components/TemplateSelector";
-import { buildGoogleSearchCommand, buildGeminiChatCommand } from "../lib/cli-preview";
+import {
+  buildGoogleSearchCommand,
+  buildGeminiChatCommand,
+} from "../lib/cli-preview";
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -374,8 +377,8 @@ export default function Home() {
           </div>
         </div>
         <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-          These commands show what will be executed when you click the Search or Chat buttons.
-          API keys are shown as [CONFIGURED] for security.
+          These commands show what will be executed when you click the Search or
+          Chat buttons. API keys are shown as [CONFIGURED] for security.
         </p>
       </div>
 

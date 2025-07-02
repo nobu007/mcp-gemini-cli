@@ -23,7 +23,8 @@ export function buildGoogleSearchCommand(params: {
   workingDirectory?: string;
   apiKey?: string;
 }): CliCommandPreview {
-  const { query, limit, raw, sandbox, yolo, model, workingDirectory, apiKey } = params;
+  const { query, limit, raw, sandbox, yolo, model, workingDirectory, apiKey } =
+    params;
 
   if (!query.trim()) {
     return {
@@ -68,12 +69,15 @@ export function buildGoogleSearchCommand(params: {
   }
 
   // Build the full command string for display
-  const envPrefix = Object.keys(environment).length > 0
-    ? `${Object.entries(environment).map(([key, value]) => `${key}=${value}`).join(" ")} `
-    : "";
+  const envPrefix =
+    Object.keys(environment).length > 0
+      ? `${Object.entries(environment)
+          .map(([key, value]) => `${key}=${value}`)
+          .join(" ")} `
+      : "";
 
   const cdPrefix = workingDirectory ? `cd "${workingDirectory}" && ` : "";
-  const escapedArgs = args.map(arg => arg.includes(" ") ? `"${arg}"` : arg);
+  const escapedArgs = args.map((arg) => (arg.includes(" ") ? `"${arg}"` : arg));
   const fullCommand = `${cdPrefix}${envPrefix}${baseCommand} ${escapedArgs.join(" ")}`;
 
   return {
@@ -128,12 +132,15 @@ export function buildGeminiChatCommand(params: {
   }
 
   // Build the full command string for display
-  const envPrefix = Object.keys(environment).length > 0
-    ? `${Object.entries(environment).map(([key, value]) => `${key}=${value}`).join(" ")} `
-    : "";
+  const envPrefix =
+    Object.keys(environment).length > 0
+      ? `${Object.entries(environment)
+          .map(([key, value]) => `${key}=${value}`)
+          .join(" ")} `
+      : "";
 
   const cdPrefix = workingDirectory ? `cd "${workingDirectory}" && ` : "";
-  const escapedArgs = args.map(arg => arg.includes(" ") ? `"${arg}"` : arg);
+  const escapedArgs = args.map((arg) => (arg.includes(" ") ? `"${arg}"` : arg));
   const fullCommand = `${cdPrefix}${envPrefix}${baseCommand} ${escapedArgs.join(" ")}`;
 
   return {
