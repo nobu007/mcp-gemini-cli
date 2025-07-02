@@ -13177,13 +13177,14 @@ async function decideGeminiCliCommand(allowNpx) {
     });
   });
 }
-async function executeGeminiCli(geminiCliCommand, args, timeoutMs = TIMEOUT_CONFIG.DEFAULT_TIMEOUT_MS, workingDirectory) {
+async function executeGeminiCli(geminiCliCommand, args, timeoutMs = TIMEOUT_CONFIG.DEFAULT_TIMEOUT_MS, workingDirectory, env) {
   const { command, initialArgs } = geminiCliCommand;
   const commandArgs = [...initialArgs, ...args];
   return new Promise((resolve, reject) => {
     const child = spawn(command, commandArgs, {
       stdio: ["pipe", "pipe", "pipe"],
-      cwd: workingDirectory || process.cwd()
+      cwd: workingDirectory || process.cwd(),
+      env: { ...process.env, ...env }
     });
     let stdout = "";
     let stderr = "";
@@ -13229,19 +13230,25 @@ var GoogleSearchParametersSchema = exports_external.object({
   sandbox: exports_external.boolean().optional().describe("Run gemini-cli in sandbox mode."),
   yolo: exports_external.boolean().optional().describe("Automatically accept all actions (aka YOLO mode)."),
   model: exports_external.string().optional().describe('The Gemini model to use. Recommended: "gemini-2.5-pro" (default) or "gemini-2.5-flash". Both models are confirmed to work with Google login.'),
-  workingDirectory: exports_external.string().optional().describe("Working directory path for gemini-cli execution (optional).")
+  workingDirectory: exports_external.string().optional().describe("Working directory path for gemini-cli execution (optional)."),
+  apiKey: exports_external.string().optional().describe("Gemini API key for authentication (optional).")
 });
 var GeminiChatParametersSchema = exports_external.object({
   prompt: exports_external.string().describe("The prompt for the chat conversation."),
   sandbox: exports_external.boolean().optional().describe("Run gemini-cli in sandbox mode."),
   yolo: exports_external.boolean().optional().describe("Automatically accept all actions (aka YOLO mode)."),
   model: exports_external.string().optional().describe('The Gemini model to use. Recommended: "gemini-2.5-pro" (default) or "gemini-2.5-flash". Both models are confirmed to work with Google login.'),
-  workingDirectory: exports_external.string().optional().describe("Working directory path for gemini-cli execution (optional).")
+  workingDirectory: exports_external.string().optional().describe("Working directory path for gemini-cli execution (optional)."),
+  apiKey: exports_external.string().optional().describe("Gemini API key for authentication (optional).")
 });
 async function executeGoogleSearch(args, allowNpx = false) {
   const parsedArgs = GoogleSearchParametersSchema.parse(args);
   const geminiCliCmd = await decideGeminiCliCommand(allowNpx);
   const workingDir = parsedArgs.workingDirectory || process.env.GEMINI_CLI_WORKING_DIR;
+  const envVars = {};
+  if (parsedArgs.apiKey) {
+    envVars.GEMINI_API_KEY = parsedArgs.apiKey;
+  }
   let prompt;
   if (parsedArgs.raw) {
     const limitText = parsedArgs.limit ? ` Limit to ${parsedArgs.limit} sources.` : "";
@@ -13263,7 +13270,7 @@ async function executeGoogleSearch(args, allowNpx = false) {
     cliArgs.push("-m", parsedArgs.model);
   }
   const searchTimeout = TIMEOUT_CONFIG.SEARCH_TIMEOUT_MS;
-  const result = await executeGeminiCli(geminiCliCmd, cliArgs, searchTimeout, workingDir);
+  const result = await executeGeminiCli(geminiCliCmd, cliArgs, searchTimeout, workingDir, envVars);
   if (parsedArgs.raw) {
     try {
       const jsonString = result.replace(/^```json\n|```$/g, "").trim();
@@ -13279,6 +13286,10 @@ async function executeGeminiChat(args, allowNpx = false) {
   const parsedArgs = GeminiChatParametersSchema.parse(args);
   const geminiCliCmd = await decideGeminiCliCommand(allowNpx);
   const workingDir = parsedArgs.workingDirectory || process.env.GEMINI_CLI_WORKING_DIR;
+  const envVars = {};
+  if (parsedArgs.apiKey) {
+    envVars.GEMINI_API_KEY = parsedArgs.apiKey;
+  }
   const cliArgs = ["-p", parsedArgs.prompt];
   if (parsedArgs.sandbox) {
     cliArgs.push("-s");
@@ -13289,7 +13300,7 @@ async function executeGeminiChat(args, allowNpx = false) {
   if (parsedArgs.model) {
     cliArgs.push("-m", parsedArgs.model);
   }
-  const result = await executeGeminiCli(geminiCliCmd, cliArgs, TIMEOUT_CONFIG.CHAT_TIMEOUT_MS, workingDir);
+  const result = await executeGeminiCli(geminiCliCmd, cliArgs, TIMEOUT_CONFIG.CHAT_TIMEOUT_MS, workingDir, envVars);
   return result;
 }
 async function main() {
@@ -13348,5 +13359,5 @@ export {
   GeminiChatParametersSchema
 };
 
-//# debugId=E0C415B8899A945264756E2164756E21
+//# debugId=64D3523BB869FC8764756E2164756E21
 //# sourceMappingURL=index.js.map
