@@ -10,6 +10,7 @@ const SearchRequestSchema = z.object({
   yolo: z.boolean().optional(),
   model: z.string().optional(),
   workingDirectory: z.string().optional(),
+  apiKey: z.string().optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -24,6 +25,7 @@ export async function POST(request: NextRequest) {
       yolo: validatedData.yolo,
       model: validatedData.model,
       workingDirectory: validatedData.workingDirectory,
+      apiKey: validatedData.apiKey,
     });
 
     return NextResponse.json(result);
@@ -70,6 +72,7 @@ export async function GET(request: NextRequest) {
       yolo: searchParams.get("yolo") === "true",
       model: searchParams.get("model") || undefined,
       workingDirectory: searchParams.get("workingDirectory") || undefined,
+      apiKey: searchParams.get("apiKey") || undefined,
     });
 
     return NextResponse.json(result);

@@ -53,6 +53,7 @@ export async function executeGeminiCli(
   args: string[],
   timeoutMs: number = TIMEOUT_CONFIG.DEFAULT_TIMEOUT_MS,
   workingDirectory?: string,
+  env?: Record<string, string>,
 ): Promise<string> {
   const { command, initialArgs } = geminiCliCommand;
   const commandArgs = [...initialArgs, ...args];
@@ -61,6 +62,7 @@ export async function executeGeminiCli(
     const child = spawn(command, commandArgs, {
       stdio: ["pipe", "pipe", "pipe"],
       cwd: workingDirectory || process.cwd(),
+      env: { ...process.env, ...env },
     });
     let stdout = "";
     let stderr = "";
@@ -136,6 +138,10 @@ export const GoogleSearchParametersSchema = z.object({
     .string()
     .optional()
     .describe("Working directory path for gemini-cli execution (optional)."),
+  apiKey: z
+    .string()
+    .optional()
+    .describe("Gemini API key for authentication (optional)."),
 });
 
 // Zod schema for geminiChat tool parameters
@@ -156,6 +162,10 @@ export const GeminiChatParametersSchema = z.object({
     .string()
     .optional()
     .describe("Working directory path for gemini-cli execution (optional)."),
+  apiKey: z
+    .string()
+    .optional()
+    .describe("Gemini API key for authentication (optional)."),
 });
 
 /**
@@ -172,6 +182,12 @@ export async function executeGoogleSearch(args: unknown, allowNpx = false) {
   // Use provided working directory or environment variable default
   const workingDir =
     parsedArgs.workingDirectory || process.env.GEMINI_CLI_WORKING_DIR;
+
+  // Prepare environment variables
+  const envVars: Record<string, string> = {};
+  if (parsedArgs.apiKey) {
+    envVars.GEMINI_API_KEY = parsedArgs.apiKey;
+  }
 
   // Build prompt based on options
   let prompt: string;
@@ -209,6 +225,7 @@ export async function executeGoogleSearch(args: unknown, allowNpx = false) {
     cliArgs,
     searchTimeout,
     workingDir,
+    envVars,
   );
 
   // For raw requests, attempt to clean up and parse the JSON
@@ -244,6 +261,12 @@ export async function executeGeminiChat(args: unknown, allowNpx = false) {
   const workingDir =
     parsedArgs.workingDirectory || process.env.GEMINI_CLI_WORKING_DIR;
 
+  // Prepare environment variables
+  const envVars: Record<string, string> = {};
+  if (parsedArgs.apiKey) {
+    envVars.GEMINI_API_KEY = parsedArgs.apiKey;
+  }
+
   const cliArgs = ["-p", parsedArgs.prompt];
   if (parsedArgs.sandbox) {
     cliArgs.push("-s");
@@ -259,6 +282,7 @@ export async function executeGeminiChat(args: unknown, allowNpx = false) {
     cliArgs,
     TIMEOUT_CONFIG.CHAT_TIMEOUT_MS,
     workingDir,
+    envVars,
   );
   return result;
 }

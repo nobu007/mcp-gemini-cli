@@ -16,6 +16,7 @@ export async function handleGoogleSearch(
     yolo?: boolean;
     model?: string;
     workingDirectory?: string;
+    apiKey?: string;
   } = {},
 ) {
   try {
@@ -55,6 +56,7 @@ export async function handleGeminiChat(
     yolo?: boolean;
     model?: string;
     workingDirectory?: string;
+    apiKey?: string;
   } = {},
 ) {
   try {

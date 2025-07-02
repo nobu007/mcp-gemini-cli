@@ -110,6 +110,7 @@ export default function Home() {
           yolo: true,
           limit: 5,
           ...(workingDirectory && { workingDirectory }),
+          ...(getCurrentApiKey() && { apiKey: getCurrentApiKey() }),
         }),
       });
 
@@ -234,7 +235,10 @@ export default function Home() {
 
         {geminiApiKeys.length > 0 && (
           <div className="mb-3">
-            <label htmlFor="api-key-selector" className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+            <label
+              htmlFor="api-key-selector"
+              className="block text-xs text-gray-600 dark:text-gray-400 mb-1"
+            >
               Current API Key ({geminiApiKeys.length} keys available):
             </label>
             <select
@@ -244,7 +248,10 @@ export default function Home() {
               className="w-full p-2 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-yellow-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             >
               {geminiApiKeys.map((key, index) => (
-                <option key={`api-key-${key.substring(0, 8)}-${index}`} value={index}>
+                <option
+                  key={`api-key-${key.substring(0, 8)}-${index}`}
+                  value={index}
+                >
                   Key #{index + 1}: {key.substring(0, 8)}...
                   {key.substring(key.length - 4)}
                 </option>
