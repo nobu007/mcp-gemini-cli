@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import TemplateSelector from "../components/TemplateSelector";
+import { buildGoogleSearchCommand, buildGeminiChatCommand } from "../lib/cli-preview";
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -15,6 +16,31 @@ export default function Home() {
   const [currentApiKeyIndex, setCurrentApiKeyIndex] = useState(0);
   const [newApiKey, setNewApiKey] = useState("");
   const [showApiKeyManager, setShowApiKeyManager] = useState(false);
+
+  // Helper function to get current API key (wrapped in useCallback for stable reference)
+  const getCurrentApiKey = useCallback(() => {
+    return geminiApiKeys[currentApiKeyIndex] || "";
+  }, [geminiApiKeys, currentApiKeyIndex]);
+
+  // CLI command previews (memoized for performance)
+  const searchCommandPreview = useMemo(() => {
+    return buildGoogleSearchCommand({
+      query: searchQuery,
+      limit: 5,
+      yolo: true,
+      workingDirectory: workingDirectory || undefined,
+      apiKey: getCurrentApiKey() || undefined,
+    });
+  }, [searchQuery, workingDirectory, getCurrentApiKey]);
+
+  const chatCommandPreview = useMemo(() => {
+    return buildGeminiChatCommand({
+      prompt: chatPrompt,
+      yolo: true,
+      workingDirectory: workingDirectory || undefined,
+      apiKey: getCurrentApiKey() || undefined,
+    });
+  }, [chatPrompt, workingDirectory, getCurrentApiKey]);
 
   // LocalStorageからWorking Directoryを復元
   useEffect(() => {
@@ -91,10 +117,6 @@ export default function Home() {
   const switchApiKey = (index: number) => {
     setCurrentApiKeyIndex(index);
     localStorage.setItem("mcp-gemini-current-api-key-index", index.toString());
-  };
-
-  const getCurrentApiKey = () => {
-    return geminiApiKeys[currentApiKeyIndex] || "";
   };
 
   const handleSearch = async () => {
@@ -318,6 +340,42 @@ export default function Home() {
           {geminiApiKeys.length === 0
             ? "No API keys configured. Add keys to enable Gemini chat functionality."
             : `Using Key #${currentApiKeyIndex + 1}. Switch keys when rate limits are reached.`}
+        </p>
+      </div>
+
+      {/* CLI Command Preview Section */}
+      <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+        <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+          CLI Command Preview
+        </h3>
+        <div className="grid md:grid-cols-2 gap-4">
+          {/* Search Command Preview */}
+          <div>
+            <div className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+              Google Search Command:
+            </div>
+            <div className="p-3 bg-white dark:bg-gray-700 rounded border font-mono text-xs overflow-x-auto">
+              <pre className="whitespace-pre-wrap text-gray-800 dark:text-gray-200">
+                {searchCommandPreview.fullCommand}
+              </pre>
+            </div>
+          </div>
+
+          {/* Chat Command Preview */}
+          <div>
+            <div className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+              Gemini Chat Command:
+            </div>
+            <div className="p-3 bg-white dark:bg-gray-700 rounded border font-mono text-xs overflow-x-auto">
+              <pre className="whitespace-pre-wrap text-gray-800 dark:text-gray-200">
+                {chatCommandPreview.fullCommand}
+              </pre>
+            </div>
+          </div>
+        </div>
+        <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+          These commands show what will be executed when you click the Search or Chat buttons.
+          API keys are shown as [CONFIGURED] for security.
         </p>
       </div>
 
