@@ -482,9 +482,10 @@ export default function Home() {
           </div>
         </div>
         <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-          These commands show the equivalent shell commands that represent the backend execution.
-          Environment variables are set programmatically via Node.js spawn(), but shown as export commands for clarity.
-          API keys are shown as [CONFIGURED] for security.
+          These commands show the equivalent shell commands that represent the
+          backend execution. Environment variables are set programmatically via
+          Node.js spawn(), but shown as export commands for clarity. API keys
+          are shown as [CONFIGURED] for security.
         </p>
       </div>
 
