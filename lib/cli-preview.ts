@@ -68,17 +68,17 @@ export function buildGoogleSearchCommand(params: {
     environment.GEMINI_API_KEY = "[CONFIGURED]";
   }
 
-  // Build the full command string for display
-  const envPrefix =
+  // Build the full command string for display (more accurate to Node.js spawn execution)
+  const envCommands =
     Object.keys(environment).length > 0
       ? `${Object.entries(environment)
-          .map(([key, value]) => `${key}=${value}`)
-          .join(" ")} `
+          .map(([key, value]) => `export ${key}=${value}`)
+          .join(" && ")} && `
       : "";
 
   const cdPrefix = workingDirectory ? `cd "${workingDirectory}" && ` : "";
   const escapedArgs = args.map((arg) => (arg.includes(" ") ? `"${arg}"` : arg));
-  const fullCommand = `${cdPrefix}${envPrefix}${baseCommand} ${escapedArgs.join(" ")}`;
+  const fullCommand = `${cdPrefix}${envCommands}${baseCommand} ${escapedArgs.join(" ")}`;
 
   return {
     command: baseCommand,
@@ -131,17 +131,17 @@ export function buildGeminiChatCommand(params: {
     environment.GEMINI_API_KEY = "[CONFIGURED]";
   }
 
-  // Build the full command string for display
-  const envPrefix =
+  // Build the full command string for display (more accurate to Node.js spawn execution)
+  const envCommands =
     Object.keys(environment).length > 0
       ? `${Object.entries(environment)
-          .map(([key, value]) => `${key}=${value}`)
-          .join(" ")} `
+          .map(([key, value]) => `export ${key}=${value}`)
+          .join(" && ")} && `
       : "";
 
   const cdPrefix = workingDirectory ? `cd "${workingDirectory}" && ` : "";
   const escapedArgs = args.map((arg) => (arg.includes(" ") ? `"${arg}"` : arg));
-  const fullCommand = `${cdPrefix}${envPrefix}${baseCommand} ${escapedArgs.join(" ")}`;
+  const fullCommand = `${cdPrefix}${envCommands}${baseCommand} ${escapedArgs.join(" ")}`;
 
   return {
     command: baseCommand,

@@ -451,6 +451,43 @@ export default function Home() {
         </div>
       </div>
 
+      {/* CLI Command Preview Section */}
+      <div className="mt-8 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+        <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+          CLI Command Preview
+        </h3>
+        <div className="grid md:grid-cols-2 gap-4">
+          {/* Search Command Preview */}
+          <div>
+            <div className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+              Google Search Command:
+            </div>
+            <div className="p-3 bg-white dark:bg-gray-700 rounded border font-mono text-xs overflow-x-auto">
+              <pre className="whitespace-pre-wrap text-gray-800 dark:text-gray-200">
+                {searchCommandPreview.fullCommand}
+              </pre>
+            </div>
+          </div>
+
+          {/* Chat Command Preview */}
+          <div>
+            <div className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+              Gemini Chat Command:
+            </div>
+            <div className="p-3 bg-white dark:bg-gray-700 rounded border font-mono text-xs overflow-x-auto">
+              <pre className="whitespace-pre-wrap text-gray-800 dark:text-gray-200">
+                {chatCommandPreview.fullCommand}
+              </pre>
+            </div>
+          </div>
+        </div>
+        <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+          These commands show the equivalent shell commands that represent the backend execution.
+          Environment variables are set programmatically via Node.js spawn(), but shown as export commands for clarity.
+          API keys are shown as [CONFIGURED] for security.
+        </p>
+      </div>
+
       <div className="mt-8 p-4 bg-primary-50 dark:bg-gray-800 rounded-lg border border-primary-200 dark:border-gray-700">
         <h3 className="font-medium mb-2 text-gray-800 dark:text-gray-200">
           API Endpoints:
