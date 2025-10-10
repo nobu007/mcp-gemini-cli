@@ -1,5 +1,5 @@
-import { type NextRequest, NextResponse } from "next/server";
-import { handleGeminiChat } from "../../../lib/gemini-api";
+import type { NextRequest } from "next/server";
+import { handleGeminiChatStream } from "../../../lib/gemini-api";
 import { z } from "zod";
 
 const ChatRequestSchema = z.object({
@@ -11,12 +11,18 @@ const ChatRequestSchema = z.object({
   apiKey: z.string().optional(),
 });
 
+const sseHeaders = {
+  "Content-Type": "text/event-stream",
+  "Cache-Control": "no-cache",
+  Connection: "keep-alive",
+};
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const validatedData = ChatRequestSchema.parse(body);
 
-    const result = await handleGeminiChat(validatedData.prompt, {
+    const stream = handleGeminiChatStream(validatedData.prompt, {
       sandbox: validatedData.sandbox,
       yolo: validatedData.yolo,
       model: validatedData.model,
@@ -24,25 +30,30 @@ export async function POST(request: NextRequest) {
       apiKey: validatedData.apiKey,
     });
 
-    return NextResponse.json(result);
+    return new Response(stream, { headers: sseHeaders });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        {
+      return new Response(
+        JSON.stringify({
           success: false,
           error: "Validation error",
           details: error.errors,
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
         },
-        { status: 400 },
       );
     }
-
-    return NextResponse.json(
-      {
+    return new Response(
+      JSON.stringify({
         success: false,
         error: error instanceof Error ? error.message : String(error),
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
       },
-      { status: 500 },
     );
   }
 }
@@ -52,14 +63,17 @@ export async function GET(request: NextRequest) {
   const prompt = searchParams.get("prompt");
 
   if (!prompt) {
-    return NextResponse.json(
-      { success: false, error: "Prompt parameter is required" },
-      { status: 400 },
+    return new Response(
+      JSON.stringify({ success: false, error: "Prompt parameter is required" }),
+      {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      },
     );
   }
 
   try {
-    const result = await handleGeminiChat(prompt, {
+    const stream = handleGeminiChatStream(prompt, {
       sandbox: searchParams.get("sandbox") === "true",
       yolo: searchParams.get("yolo") === "true",
       model: searchParams.get("model") || undefined,
@@ -67,14 +81,17 @@ export async function GET(request: NextRequest) {
       apiKey: searchParams.get("apiKey") || undefined,
     });
 
-    return NextResponse.json(result);
+    return new Response(stream, { headers: sseHeaders });
   } catch (error) {
-    return NextResponse.json(
-      {
+    return new Response(
+      JSON.stringify({
         success: false,
         error: error instanceof Error ? error.message : String(error),
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
       },
-      { status: 500 },
     );
   }
 }
