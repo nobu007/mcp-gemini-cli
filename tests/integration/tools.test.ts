@@ -4,7 +4,7 @@ import {
   executeGeminiCli,
   executeGoogleSearch,
   executeGeminiChat,
-} from "../../index.ts";
+} from "../../lib/tools.ts";
 
 // Check if gemini-cli is available
 let isGeminiCliAvailable = false;
