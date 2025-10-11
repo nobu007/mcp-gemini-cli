@@ -14,14 +14,11 @@ export const mcpServer = new McpServer({
   version: "0.2.0",
 });
 
-// Register googleSearch tool
-mcpServer.registerTool(
+// Register googleSearch tool using the simpler tool() method
+mcpServer.tool(
   "googleSearch",
-  {
-    description:
-      "Performs a Google search using gemini-cli and returns structured results.",
-    inputSchema: GoogleSearchParametersSchema.shape,
-  },
+  "Performs a Google search using gemini-cli and returns structured results.",
+  GoogleSearchParametersSchema.shape,
   async (args) => {
     const result = await executeGoogleSearch(args, allowNpx);
     return {
@@ -35,13 +32,11 @@ mcpServer.registerTool(
   },
 );
 
-// Register geminiChat tool
-mcpServer.registerTool(
+// Register geminiChat tool using the simpler tool() method
+mcpServer.tool(
   "geminiChat",
-  {
-    description: "Engages in a chat conversation with gemini-cli.",
-    inputSchema: GeminiChatParametersSchema.shape,
-  },
+  "Engages in a chat conversation with gemini-cli.",
+  GeminiChatParametersSchema.shape,
   async (args) => {
     const result = await executeGeminiChat(args, allowNpx);
     return {
@@ -54,3 +49,5 @@ mcpServer.registerTool(
     };
   },
 );
+
+console.log("[mcp-server] Tools registered successfully");

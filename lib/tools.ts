@@ -11,9 +11,9 @@ import { TIMEOUT_CONFIG } from "../config";
  * @throws An error if 'gemini' is not found and npx is not allowed.
  */
 export async function decideGeminiCliCommand(
-  allowNpx: boolean,
+  _allowNpx: boolean,
 ): Promise<{ command: string; initialArgs: string[] }> {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, _reject) => {
     console.log("[tools] Attempting to find 'gemini' executable...");
     const whichChild = spawn("which", ["gemini"]);
     let whichStdout = "";
@@ -35,32 +35,19 @@ export async function decideGeminiCliCommand(
         console.warn(
           `[tools] 'gemini' not found in PATH. which exited with code ${code}. Stderr: ${whichStderr.trim()}`,
         );
-        if (allowNpx) {
-          console.log(
-            "[tools] Falling back to 'npx @google-gemini/cli' as allowNpx is true.",
-          );
-          resolve({ command: "npx", initialArgs: ["@google-gemini/cli"] });
-        } else {
-          const errorMessage =
-            "'gemini' executable not found in PATH. Please install it globally or enable --allow-npx.";
-          console.error(`[tools] Error: ${errorMessage}`);
-          reject(new Error(errorMessage));
-        }
+        console.log(
+          "[tools] Falling back to 'npx @google-gemini/cli' as 'gemini' was not found in PATH.",
+        );
+        resolve({ command: "npx", initialArgs: ["@google-gemini/cli"] });
       }
     });
 
     whichChild.on("error", (err) => {
       console.error(`[tools] Error executing 'which gemini': ${err.message}`);
-      if (allowNpx) {
-        console.log(
-          "[tools] Falling back to 'npx @google-gemini/cli' due to 'which' error and allowNpx is true.",
-        );
-        resolve({ command: "npx", initialArgs: ["@google-gemini/cli"] });
-      } else {
-        const errorMessage = `Error checking for 'gemini' executable: ${err.message}. Please install it globally or enable --allow-npx.`;
-        console.error(`[tools] Error: ${errorMessage}`);
-        reject(new Error(errorMessage));
-      }
+      console.log(
+        "[tools] Falling back to 'npx @google-gemini/cli' due to 'which' command error.",
+      );
+      resolve({ command: "npx", initialArgs: ["@google-gemini/cli"] });
     });
   });
 }
@@ -81,8 +68,12 @@ export async function executeGeminiCli(
   workingDirectory?: string,
   env?: Record<string, string>,
 ): Promise<string> {
+  const escapeShellArg = (arg: string) => `'${arg.replace(/'/g, "'\\''")}'`;
+
   const { command, initialArgs } = geminiCliCommand;
-  const commandArgs = [...initialArgs, ...args];
+  const allArgs = [...initialArgs, ...args];
+  const commandString = [command, ...allArgs.map(escapeShellArg)].join(" ");
+
   const cwd = workingDirectory || process.cwd();
   const fullEnv = { ...process.env, ...env };
 
@@ -92,12 +83,12 @@ export async function executeGeminiCli(
     loggedEnv.GEMINI_API_KEY = "[MASKED]";
   }
 
-  console.log(`[tools] Executing command: ${command} ${commandArgs.join(" ")}`);
+  console.log(`[tools] Executing via bash -c: ${commandString}`);
   console.log(`[tools] Working directory: ${cwd}`);
   console.log(`[tools] Environment variables: ${JSON.stringify(loggedEnv)}`);
 
   return new Promise((resolve, reject) => {
-    const child = spawn(command, commandArgs, {
+    const child = spawn("bash", ["-c", commandString], {
       stdio: ["pipe", "pipe", "pipe"],
       cwd: cwd,
       env: fullEnv,
@@ -111,7 +102,7 @@ export async function executeGeminiCli(
         isResolved = true;
         child.kill("SIGTERM");
         console.error(
-          `[tools] Command timed out after ${timeoutMs}ms: ${command} ${commandArgs.join(" ")}`,
+          `[tools] Command timed out after ${timeoutMs}ms: ${commandString}`,
         );
         reject(
           new Error(`gemini-cli operation timed out after ${timeoutMs}ms`),
@@ -136,7 +127,7 @@ export async function executeGeminiCli(
         isResolved = true;
         clearTimeout(timeout);
         console.log(
-          `[tools] Command exited with code ${code}: ${command} ${commandArgs.join(" ")}`,
+          `[tools] Command exited with code ${code}: ${commandString}`,
         );
         if (code === 0) {
           resolve(stdout);
@@ -151,7 +142,7 @@ export async function executeGeminiCli(
         isResolved = true;
         clearTimeout(timeout);
         console.error(
-          `[tools] Failed to start command ${command} ${commandArgs.join(" ")}: ${err.message}`,
+          `[tools] Failed to start command ${commandString}: ${err.message}`,
         );
         reject(err);
       }
@@ -173,8 +164,12 @@ export function streamGeminiCli(
   workingDirectory?: string,
   env?: Record<string, string>,
 ) {
+  const escapeShellArg = (arg: string) => `'${arg.replace(/'/g, "'\\''")}'`;
+
   const { command, initialArgs } = geminiCliCommand;
-  const commandArgs = [...initialArgs, ...args];
+  const allArgs = [...initialArgs, ...args];
+  const commandString = [command, ...allArgs.map(escapeShellArg)].join(" ");
+
   const cwd = workingDirectory || process.cwd();
   const fullEnv = { ...process.env, ...env };
 
@@ -184,11 +179,11 @@ export function streamGeminiCli(
     loggedEnv.GEMINI_API_KEY = "[MASKED]";
   }
 
-  console.log(`[tools] Streaming command: ${command} ${commandArgs.join(" ")}`);
+  console.log(`[tools] Streaming via bash -c: ${commandString}`);
   console.log(`[tools] Working directory: ${cwd}`);
   console.log(`[tools] Environment variables: ${JSON.stringify(loggedEnv)}`);
 
-  const child = spawn(command, commandArgs, {
+  const child = spawn("bash", ["-c", commandString], {
     stdio: ["pipe", "pipe", "pipe"],
     cwd: cwd,
     env: fullEnv,

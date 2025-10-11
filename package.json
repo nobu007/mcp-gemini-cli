@@ -37,7 +37,7 @@
   "scripts": {
     "start": "bun run index.ts",
     "dev": "bun --watch run index.ts",
-    "web:dev": "node -e \"console.log('\\n✨ MCP Gemini CLI Web Server is starting...\\n'); console.log('Local server: http://localhost:3000\\n'); console.log('To use with ClaudeCode, add the following to your settings:'); console.log(JSON.stringify({ 'gemini-local': { type: 'sse', url: 'http://localhost:3000/api/gemini-chat' }, 'gemini-command-local': { type: 'sse', url: 'http://localhost:3000/api/gemini-command' } }, null, 2)); console.log('\\n');\" && NEXT_DEBUG=true next dev",
+    "web:dev": "node -e \"console.log('\\n✨ MCP Gemini CLI Web Server is starting...\\n'); console.log('Local server: http://localhost:3000\\n'); console.log('To use with a compatible MCP client (like ClaudeCode), add the following to your settings:'); console.log(JSON.stringify({ mcpServers: { 'gemini-cli-mcp': { type: 'sse', command: 'http://localhost:3000/api/mcp' } } }, null, 2)); console.log('\\n');\" && NEXT_DEBUG=true next dev",
     "web:build": "next build",
     "web:start": "next start",
     "build": "rm -rf dist && bun build --target=node --banner=$'#!/usr/bin/env node\n' --outdir=dist --sourcemap index.ts cli.ts",

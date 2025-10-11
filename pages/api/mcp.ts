@@ -1,3 +1,13 @@
+import type { NextApiRequest, NextApiResponse } from "next";
+import { randomUUID } from "node:crypto";
+import { mcpServer } from "@/lib/mcp-server";
+import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
+import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
+
+// In-memory store for active transports, keyed by session ID.
+// This works for a single-server development environment.
+const transports: Record<string, StreamableHTTPServerTransport> = {};
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
