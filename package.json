@@ -77,7 +77,8 @@
       "node_modules/**",
       ".git/**",
       ".claude/**",
-      "tmp/**"
+      "tmp/**",
+      "AGENTS.md"
     ],
     "config": {
       "default": true,
