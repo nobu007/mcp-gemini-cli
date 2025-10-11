@@ -7,7 +7,7 @@ import {
   decideGeminiCliCommand,
   executeGoogleSearch,
   executeGeminiChat,
-} from "./index";
+} from "./lib/tools.js";
 
 async function startMcpServer() {
   // Check for --allow-npx argument
