@@ -138,8 +138,19 @@ export async function executeGeminiCli(
     });
 
     child.stderr.on("data", (data) => {
-      stderr += data.toString();
-      console.error(`[tools] STDERR: ${data.toString().trim()}`);
+      const message = data.toString();
+      stderr += message;
+
+      // Filter out informational messages that are not actual errors
+      const trimmedMessage = message.trim();
+      const isInfoMessage =
+        trimmedMessage.startsWith("Loaded cached credentials") ||
+        trimmedMessage.includes("Using cached credentials") ||
+        trimmedMessage.match(/^\[.*\]\s*(Loaded|Using|Authenticated)/);
+
+      if (!isInfoMessage) {
+        console.error(`[tools] STDERR: ${trimmedMessage}`);
+      }
     });
 
     child.on("close", (code) => {
