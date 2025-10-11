@@ -40,3 +40,10 @@ next-env.d.ts
 # playwright
 /playwright-report/
 /test-results/
+
+# logs
+*.log
+.mcp-server.pid
+
+# backup files
+*.bak

@@ -1,0 +1,24 @@
+[Unit]
+Description=MCP Gemini CLI Server
+After=network.target
+
+[Service]
+Type=simple
+User=jinno
+WorkingDirectory=/home/jinno/mcp-gemini-cli
+ExecStart=/home/jinno/.bun/bin/bun run /home/jinno/mcp-gemini-cli/dist/index.js
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=mcp-gemini-cli
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/jinno/mcp-gemini-cli
+
+[Install]
+WantedBy=multi-user.target
