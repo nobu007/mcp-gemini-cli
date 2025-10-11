@@ -1,7 +1,7 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.2.5/schema.json",
   "files": {
-    "includes": ["**", "!**/dist", "!**/.next"]
+    "includes": ["**", "!AGENTS.md", "!**/dist", "!**/.next"]
   },
   "linter": {
     "enabled": true,
@@ -26,6 +26,8 @@
     "formatWithErrors": false,
     "indentStyle": "space",
     "indentWidth": 2,
-    "lineEnding": "lf"
+    "lineEnding": "lf",
+    "lineWidth": 80,
+    "attributePosition": "auto"
   }
 }
