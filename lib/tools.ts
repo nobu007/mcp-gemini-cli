@@ -303,9 +303,11 @@ export async function executeGoogleSearch(args: unknown, allowNpx = false) {
   const geminiCliCmd = await decideGeminiCliCommand(allowNpx);
 
   // Use provided working directory or environment variable default
-  // Default to /tmp to avoid project context detection by gemini-cli
+  // Default to current working directory to maintain context
   const workingDir =
-    parsedArgs.workingDirectory || process.env.GEMINI_CLI_WORKING_DIR || "/tmp";
+    parsedArgs.workingDirectory ||
+    process.env.GEMINI_CLI_WORKING_DIR ||
+    process.cwd();
 
   // Prepare environment variables
   const envVars: Record<string, string> = {};
@@ -384,9 +386,11 @@ export async function executeGeminiChat(args: unknown, allowNpx = false) {
   const geminiCliCmd = await decideGeminiCliCommand(allowNpx);
 
   // Use provided working directory or environment variable default
-  // Default to /tmp to avoid project context detection by gemini-cli
+  // Default to current working directory to maintain context
   const workingDir =
-    parsedArgs.workingDirectory || process.env.GEMINI_CLI_WORKING_DIR || "/tmp";
+    parsedArgs.workingDirectory ||
+    process.env.GEMINI_CLI_WORKING_DIR ||
+    process.cwd();
 
   // Prepare environment variables
   const envVars: Record<string, string> = {};

@@ -120,7 +120,7 @@ killall -9 tsx
 
 ## ディレクトリ構造
 
-```
+```text
 /home/jinno/mcp-gemini-cli/
 ├── dist/                      # ビルド出力
 │   ├── index.js              # メインサーバー
