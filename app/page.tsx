@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useId } from "react";
 import TemplateSelector from "../components/TemplateSelector";
 import {
   buildGoogleSearchCommand,
@@ -8,6 +8,8 @@ import {
 } from "../lib/cli-preview";
 
 export default function Home() {
+  const workingDirectoryId = useId();
+  const apiKeySelectorId = useId();
   const [searchQuery, setSearchQuery] = useState("");
   const [chatPrompt, setChatPrompt] = useState("");
   const [searchResult, setSearchResult] = useState("");
@@ -213,13 +215,13 @@ export default function Home() {
       {/* Working Directory Section */}
       <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
         <label
-          htmlFor="workingDirectory"
+          htmlFor={workingDirectoryId}
           className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
         >
           Working Directory (Optional)
         </label>
         <input
-          id="workingDirectory"
+          id={workingDirectoryId}
           type="text"
           value={workingDirectory}
           onChange={(e) => handleWorkingDirectoryChange(e.target.value)}
@@ -261,15 +263,17 @@ export default function Home() {
         {geminiApiKeys.length > 0 && (
           <div className="mb-3">
             <label
-              htmlFor="api-key-selector"
+              htmlFor={apiKeySelectorId}
               className="block text-xs text-gray-600 dark:text-gray-400 mb-1"
             >
               Current API Key ({geminiApiKeys.length} keys available):
             </label>
             <select
-              id="api-key-selector"
+              id={apiKeySelectorId}
               value={currentApiKeyIndex}
-              onChange={(e) => switchApiKey(Number.parseInt(e.target.value))}
+              onChange={(e) =>
+                switchApiKey(Number.parseInt(e.target.value, 10))
+              }
               className="w-full p-2 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-yellow-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             >
               {geminiApiKeys.map((key, index) => (
