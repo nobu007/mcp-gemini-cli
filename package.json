@@ -49,10 +49,12 @@
     "format": "biome format --write .",
     "test": "bun test",
     "test:integration": "bun test tests/integration",
+    "test:e2e": "playwright test",
     "prepare": "bun run build:prod && lefthook install"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.0.5",
+    "@playwright/test": "^1.56.0",
     "@types/bun": "latest",
     "@types/node": "^20.0.0",
     "lefthook": "^1.11.14",
