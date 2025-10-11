@@ -68,7 +68,7 @@ export async function executeGeminiCli(
   workingDirectory?: string,
   env?: Record<string, string | undefined>,
 ): Promise<string> {
-  const { command, initialArgs} = geminiCliCommand;
+  const { command, initialArgs } = geminiCliCommand;
   const allArgs = [...initialArgs, ...args];
 
   const cwd = workingDirectory || process.cwd();
