@@ -158,6 +158,8 @@ export default function Home() {
     if (!chatPrompt.trim()) return;
 
     setLoading(true);
+    setChatResult(""); // Clear previous chat result
+
     try {
       const response = await fetch("/api/gemini-chat", {
         method: "POST",
@@ -170,14 +172,55 @@ export default function Home() {
         }),
       });
 
-      const contentType = response.headers.get("content-type");
-      if (!contentType || !contentType.includes("application/json")) {
-        throw new Error("Server returned non-JSON response");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to get chat response");
       }
-      const data = await response.json();
-      setChatResult(data.success ? data.data : `Error: ${data.error}`);
+
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error("Failed to get readable stream from response");
+      }
+
+      const decoder = new TextDecoder();
+      let accumulatedContent = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        // SSE messages are typically prefixed with 'data: ' and end with '\n\n'
+        const messages = chunk
+          .split("\n\n")
+          .filter((msg) => msg.startsWith("data:"));
+
+        for (const message of messages) {
+          try {
+            const jsonString = message.substring(5); // Remove 'data: '
+            const parsed = JSON.parse(jsonString);
+
+            if (parsed.type === "stdout") {
+              accumulatedContent += parsed.content;
+            } else if (parsed.type === "stderr") {
+              accumulatedContent += `\n[ERROR]: ${parsed.content}\n`;
+            } else if (parsed.type === "close") {
+              // Process close event if needed
+            } else if (parsed.type === "error") {
+              accumulatedContent += `\n[STREAM ERROR]: ${parsed.content}\n`;
+            }
+            setChatResult(accumulatedContent);
+          } catch (parseError) {
+            console.error("Failed to parse SSE message:", message, parseError);
+            accumulatedContent += `\n[PARSE ERROR]: ${message}\n`;
+            setChatResult(accumulatedContent);
+          }
+        }
+      }
     } catch (error) {
-      setChatResult(`Error: ${error}`);
+      setChatResult(
+        `Error: ${error instanceof Error ? error.message : String(error)}`,
+      );
     } finally {
       setLoading(false);
     }

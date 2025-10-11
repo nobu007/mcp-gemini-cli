@@ -1,8 +1,5 @@
-/* biome-ignore lint: Tailwind CSS directives */
 @tailwind base;
-/* biome-ignore lint: Tailwind CSS directives */
 @tailwind components;
-/* biome-ignore lint: Tailwind CSS directives */
 @tailwind utilities;
 
 * {

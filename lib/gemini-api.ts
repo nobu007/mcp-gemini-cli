@@ -29,6 +29,9 @@ export async function handleGoogleSearch(
     apiKey?: string;
   } = {},
 ) {
+  console.log(
+    `[gemini-api] handleGoogleSearch called with query: "${query}", options: ${JSON.stringify(options)}`,
+  );
   try {
     const result = await executeGoogleSearch(
       {
@@ -38,15 +41,18 @@ export async function handleGoogleSearch(
       true,
     );
 
+    console.log("[gemini-api] handleGoogleSearch successful.");
     return {
       success: true,
       data: result,
       timestamp: new Date().toISOString(),
     };
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error(`[gemini-api] handleGoogleSearch failed: ${errorMessage}`);
     return {
       success: false,
-      error: error instanceof Error ? error.message : String(error),
+      error: errorMessage,
       timestamp: new Date().toISOString(),
     };
   }
@@ -69,6 +75,9 @@ export async function handleGeminiChat(
     apiKey?: string;
   } = {},
 ) {
+  console.log(
+    `[gemini-api] handleGeminiChat called with prompt: "${prompt.substring(0, 100)}...", options: ${JSON.stringify(options)}`,
+  );
   try {
     const result = await executeGeminiChat(
       {
@@ -78,15 +87,18 @@ export async function handleGeminiChat(
       true,
     );
 
+    console.log("[gemini-api] handleGeminiChat successful.");
     return {
       success: true,
       data: result,
       timestamp: new Date().toISOString(),
     };
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error(`[gemini-api] handleGeminiChat failed: ${errorMessage}`);
     return {
       success: false,
-      error: error instanceof Error ? error.message : String(error),
+      error: errorMessage,
       timestamp: new Date().toISOString(),
     };
   }
@@ -108,6 +120,10 @@ export function handleGeminiChatStream(
     apiKey?: string;
   } = {},
 ) {
+  console.log(
+    `[gemini-api] handleGeminiChatStream called with prompt: "${prompt.substring(0, 100)}...", options: ${JSON.stringify(options)}`,
+  );
+
   const stream = new ReadableStream({
     async start(controller) {
       try {
@@ -115,8 +131,15 @@ export function handleGeminiChatStream(
           prompt,
           ...options,
         });
+        console.log(
+          `[gemini-api] Parsed chat arguments: ${JSON.stringify(parsedArgs)}`,
+        );
+
         // In the context of the API server, we don't expect to use npx.
         const geminiCliCmd = await decideGeminiCliCommand(false);
+        console.log(
+          `[gemini-api] Gemini CLI command decided: ${JSON.stringify(geminiCliCmd)}`,
+        );
 
         const workingDir =
           parsedArgs.workingDirectory || process.env.GEMINI_CLI_WORKING_DIR;
@@ -124,11 +147,22 @@ export function handleGeminiChatStream(
         if (parsedArgs.apiKey) {
           envVars.GEMINI_API_KEY = parsedArgs.apiKey;
         }
+        // Mask API key for logging
+        const loggedEnvVars = { ...envVars };
+        if (loggedEnvVars.GEMINI_API_KEY) {
+          loggedEnvVars.GEMINI_API_KEY = "[MASKED]";
+        }
+        console.log(
+          `[gemini-api] Working directory: ${workingDir}, Environment variables: ${JSON.stringify(loggedEnvVars)}`,
+        );
 
         const cliArgs = ["-p", parsedArgs.prompt];
         if (parsedArgs.sandbox) cliArgs.push("-s");
         if (parsedArgs.yolo) cliArgs.push("-y");
         if (parsedArgs.model) cliArgs.push("-m", parsedArgs.model);
+        console.log(
+          `[gemini-api] CLI arguments for streaming: ${cliArgs.join(" ")}`,
+        );
 
         const child = streamGeminiCli(
           geminiCliCmd,
@@ -138,23 +172,27 @@ export function handleGeminiChatStream(
         );
 
         const timeout = setTimeout(() => {
+          console.warn(
+            `[gemini-api] Chat stream timed out after ${TIMEOUT_CONFIG.CHAT_TIMEOUT_MS}ms. Killing child process.`,
+          );
           child.kill("SIGTERM");
         }, TIMEOUT_CONFIG.CHAT_TIMEOUT_MS);
 
         child.stdout.on("data", (data: Buffer) => {
-          controller.enqueue(
-            formatSse({ type: "stdout", content: data.toString() }),
-          );
+          const content = data.toString();
+          console.log(`[gemini-api] STDOUT chunk: ${content.trim()}`);
+          controller.enqueue(formatSse({ type: "stdout", content: content }));
         });
 
         child.stderr.on("data", (data: Buffer) => {
-          controller.enqueue(
-            formatSse({ type: "stderr", content: data.toString() }),
-          );
+          const content = data.toString();
+          console.error(`[gemini-api] STDERR chunk: ${content.trim()}`);
+          controller.enqueue(formatSse({ type: "stderr", content: content }));
         });
 
         child.on("close", (code) => {
           clearTimeout(timeout);
+          console.log(`[gemini-api] Child process closed with code ${code}.`);
           controller.enqueue(
             formatSse({
               type: "close",
@@ -166,6 +204,7 @@ export function handleGeminiChatStream(
 
         child.on("error", (err) => {
           clearTimeout(timeout);
+          console.error(`[gemini-api] Child process error: ${err.message}`);
           controller.enqueue(
             formatSse({ type: "error", content: err.message }),
           );
@@ -174,6 +213,9 @@ export function handleGeminiChatStream(
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : String(error);
+        console.error(
+          `[gemini-api] Failed to start chat stream: ${errorMessage}`,
+        );
         controller.enqueue(
           formatSse({
             type: "error",

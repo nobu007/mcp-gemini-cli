@@ -20,7 +20,11 @@ const sseHeaders = {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    console.log(
+      `[gemini-chat/route] POST request received. Body: ${JSON.stringify(body)}`,
+    );
     const validatedData = ChatRequestSchema.parse(body);
+    console.log("[gemini-chat/route] Request body validated successfully.");
 
     const stream = handleGeminiChatStream(validatedData.prompt, {
       sandbox: validatedData.sandbox,
@@ -33,6 +37,9 @@ export async function POST(request: NextRequest) {
     return new Response(stream, { headers: sseHeaders });
   } catch (error) {
     if (error instanceof z.ZodError) {
+      console.error(
+        `[gemini-chat/route] Validation error: ${JSON.stringify(error.errors)}`,
+      );
       return new Response(
         JSON.stringify({
           success: false,
@@ -45,10 +52,12 @@ export async function POST(request: NextRequest) {
         },
       );
     }
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error(`[gemini-chat/route] Internal server error: ${errorMessage}`);
     return new Response(
       JSON.stringify({
         success: false,
-        error: error instanceof Error ? error.message : String(error),
+        error: errorMessage,
       }),
       {
         status: 500,
@@ -61,8 +70,14 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const prompt = searchParams.get("prompt");
+  console.log(
+    `[gemini-chat/route] GET request received. Prompt: "${prompt ? prompt.substring(0, 100) + "..." : ""}", SearchParams: ${searchParams.toString()}`,
+  );
 
   if (!prompt) {
+    console.error(
+      "[gemini-chat/route] GET request failed: Prompt parameter is required.",
+    );
     return new Response(
       JSON.stringify({ success: false, error: "Prompt parameter is required" }),
       {
@@ -83,10 +98,14 @@ export async function GET(request: NextRequest) {
 
     return new Response(stream, { headers: sseHeaders });
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error(
+      `[gemini-chat/route] Internal server error for GET request: ${errorMessage}`,
+    );
     return new Response(
       JSON.stringify({
         success: false,
-        error: error instanceof Error ? error.message : String(error),
+        error: errorMessage,
       }),
       {
         status: 500,

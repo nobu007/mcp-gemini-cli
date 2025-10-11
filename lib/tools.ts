@@ -14,25 +14,53 @@ export async function decideGeminiCliCommand(
   allowNpx: boolean,
 ): Promise<{ command: string; initialArgs: string[] }> {
   return new Promise((resolve, reject) => {
-    const child = spawn("which", ["gemini"]);
-    child.on("close", (code) => {
-      if (code === 0) {
+    console.log("[tools] Attempting to find 'gemini' executable...");
+    const whichChild = spawn("which", ["gemini"]);
+    let whichStdout = "";
+    let whichStderr = "";
+
+    whichChild.stdout.on("data", (data) => {
+      whichStdout += data.toString();
+    });
+
+    whichChild.stderr.on("data", (data) => {
+      whichStderr += data.toString();
+    });
+
+    whichChild.on("close", (code) => {
+      if (code === 0 && whichStdout.trim().length > 0) {
+        console.log(`[tools] 'gemini' found at: ${whichStdout.trim()}`);
         resolve({ command: "gemini", initialArgs: [] });
-      } else if (allowNpx) {
-        resolve({
-          command: "npx",
-          initialArgs: ["https://github.com/google-gemini/gemini-cli"],
-        });
       } else {
-        reject(
-          new Error(
-            "gemini not found globally and --allow-npx option not specified.",
-          ),
+        console.warn(
+          `[tools] 'gemini' not found in PATH. which exited with code ${code}. Stderr: ${whichStderr.trim()}`,
         );
+        if (allowNpx) {
+          console.log(
+            "[tools] Falling back to 'npx @google-gemini/cli' as allowNpx is true.",
+          );
+          resolve({ command: "npx", initialArgs: ["@google-gemini/cli"] });
+        } else {
+          const errorMessage =
+            "'gemini' executable not found in PATH. Please install it globally or enable --allow-npx.";
+          console.error(`[tools] Error: ${errorMessage}`);
+          reject(new Error(errorMessage));
+        }
       }
     });
-    child.on("error", (err) => {
-      reject(err);
+
+    whichChild.on("error", (err) => {
+      console.error(`[tools] Error executing 'which gemini': ${err.message}`);
+      if (allowNpx) {
+        console.log(
+          "[tools] Falling back to 'npx @google-gemini/cli' due to 'which' error and allowNpx is true.",
+        );
+        resolve({ command: "npx", initialArgs: ["@google-gemini/cli"] });
+      } else {
+        const errorMessage = `Error checking for 'gemini' executable: ${err.message}. Please install it globally or enable --allow-npx.`;
+        console.error(`[tools] Error: ${errorMessage}`);
+        reject(new Error(errorMessage));
+      }
     });
   });
 }
@@ -55,43 +83,61 @@ export async function executeGeminiCli(
 ): Promise<string> {
   const { command, initialArgs } = geminiCliCommand;
   const commandArgs = [...initialArgs, ...args];
+  const cwd = workingDirectory || process.cwd();
+  const fullEnv = { ...process.env, ...env };
+
+  // Mask API key for logging
+  const loggedEnv = { ...fullEnv };
+  if (loggedEnv.GEMINI_API_KEY) {
+    loggedEnv.GEMINI_API_KEY = "[MASKED]";
+  }
+
+  console.log(`[tools] Executing command: ${command} ${commandArgs.join(" ")}`);
+  console.log(`[tools] Working directory: ${cwd}`);
+  console.log(`[tools] Environment variables: ${JSON.stringify(loggedEnv)}`);
 
   return new Promise((resolve, reject) => {
     const child = spawn(command, commandArgs, {
       stdio: ["pipe", "pipe", "pipe"],
-      cwd: workingDirectory || process.cwd(),
-      env: { ...process.env, ...env },
+      cwd: cwd,
+      env: fullEnv,
     });
     let stdout = "";
     let stderr = "";
     let isResolved = false;
 
-    // タイムアウト処理
     const timeout = setTimeout(() => {
       if (!isResolved) {
         isResolved = true;
         child.kill("SIGTERM");
+        console.error(
+          `[tools] Command timed out after ${timeoutMs}ms: ${command} ${commandArgs.join(" ")}`,
+        );
         reject(
           new Error(`gemini-cli operation timed out after ${timeoutMs}ms`),
         );
       }
     }, timeoutMs);
 
-    // Close stdin immediately since we're not sending any input
     child.stdin.end();
 
     child.stdout.on("data", (data) => {
       stdout += data.toString();
+      console.log(`[tools] STDOUT: ${data.toString().trim()}`);
     });
 
     child.stderr.on("data", (data) => {
       stderr += data.toString();
+      console.error(`[tools] STDERR: ${data.toString().trim()}`);
     });
 
     child.on("close", (code) => {
       if (!isResolved) {
         isResolved = true;
         clearTimeout(timeout);
+        console.log(
+          `[tools] Command exited with code ${code}: ${command} ${commandArgs.join(" ")}`,
+        );
         if (code === 0) {
           resolve(stdout);
         } else {
@@ -104,6 +150,9 @@ export async function executeGeminiCli(
       if (!isResolved) {
         isResolved = true;
         clearTimeout(timeout);
+        console.error(
+          `[tools] Failed to start command ${command} ${commandArgs.join(" ")}: ${err.message}`,
+        );
         reject(err);
       }
     });
@@ -126,11 +175,23 @@ export function streamGeminiCli(
 ) {
   const { command, initialArgs } = geminiCliCommand;
   const commandArgs = [...initialArgs, ...args];
+  const cwd = workingDirectory || process.cwd();
+  const fullEnv = { ...process.env, ...env };
+
+  // Mask API key for logging
+  const loggedEnv = { ...fullEnv };
+  if (loggedEnv.GEMINI_API_KEY) {
+    loggedEnv.GEMINI_API_KEY = "[MASKED]";
+  }
+
+  console.log(`[tools] Streaming command: ${command} ${commandArgs.join(" ")}`);
+  console.log(`[tools] Working directory: ${cwd}`);
+  console.log(`[tools] Environment variables: ${JSON.stringify(loggedEnv)}`);
 
   const child = spawn(command, commandArgs, {
     stdio: ["pipe", "pipe", "pipe"],
-    cwd: workingDirectory || process.cwd(),
-    env: { ...process.env, ...env },
+    cwd: cwd,
+    env: fullEnv,
   });
 
   // Close stdin immediately since we're not sending any input

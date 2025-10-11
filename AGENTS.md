@@ -174,8 +174,14 @@
 
 ### 2.1.2 プロジェクト基本情報
 
+- **プロジェクト名**: MCP Gemini CLI
+- **説明**: GoogleのGemini CLIをMCP（Model Context Protocol）でラップし、AIアシスタントがGeminiの機能を利用できるようにするシンプルなサーバーです。
+- **主な機能**:
+  - **Google Search**: Geminiを利用してGoogle検索を実行します。
+  - **Gemini Chat**: Geminiと直接対話します。
+  - **デュアルモード**: MCPサーバーと、UIおよびAPIを備えた標準的なWebサーバーの両方として動作します。
 - **目的**: 言語非依存の汎用開発思想とプロジェクト構成ルール
-- **対象**: Python、TypeScript、その他言語での開発プロジェクト  
+- **対象**: Python、TypeScript、その他言語での開発プロジェクト
 - **専門特化**: 言語特化版は各言語フォルダ参照
 - **上位文書**: SYSTEM_CONSTITUTION.md・CLAUDE.md
 
