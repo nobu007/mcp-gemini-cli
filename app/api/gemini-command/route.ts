@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { z } from "zod";
 import { spawn } from "node:child_process";
+import { decideGeminiCliCommand } from "@/lib/tools";
 
 const CommandRequestSchema = z.object({
   command: z.string().min(1, "Command is required"),
@@ -14,7 +15,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = CommandRequestSchema.parse(body);
 
-    if (!validatedData.command.trim().startsWith("gemini ")) {
+    const commandStr = validatedData.command.trim();
+    if (!commandStr.startsWith("gemini ")) {
       const errorPayload = {
         success: false,
         error: "Invalid command. Only 'gemini' commands are allowed.",
@@ -26,41 +28,59 @@ export async function POST(request: NextRequest) {
     }
 
     const stream = new ReadableStream({
-      start(controller) {
-        const commandParts = validatedData.command.split(" ");
-        const child = spawn(commandParts[0], commandParts.slice(1), {
-          cwd: process.cwd(),
-          shell: false, // More secure to avoid shell injection
-        });
+      async start(controller) {
+        try {
+          // Allow npx fallback
+          const geminiCliCmd = await decideGeminiCliCommand(true);
 
-        child.stdout.on("data", (data: Buffer) => {
-          controller.enqueue(
-            formatSse({ type: "stdout", content: data.toString() }),
-          );
-        });
+          // Extract user arguments, removing the initial "gemini" part
+          const userArgs = commandStr.split(" ").slice(1);
+          const finalArgs = [...geminiCliCmd.initialArgs, ...userArgs];
 
-        child.stderr.on("data", (data: Buffer) => {
-          controller.enqueue(
-            formatSse({ type: "stderr", content: data.toString() }),
-          );
-        });
+          const child = spawn(geminiCliCmd.command, finalArgs, {
+            cwd: process.cwd(),
+            shell: false, // More secure to avoid shell injection
+          });
 
-        child.on("close", (code) => {
+          child.stdout.on("data", (data: Buffer) => {
+            controller.enqueue(
+              formatSse({ type: "stdout", content: data.toString() }),
+            );
+          });
+
+          child.stderr.on("data", (data: Buffer) => {
+            controller.enqueue(
+              formatSse({ type: "stderr", content: data.toString() }),
+            );
+          });
+
+          child.on("close", (code) => {
+            controller.enqueue(
+              formatSse({
+                type: "close",
+                content: `Process exited with code ${code}`,
+              }),
+            );
+            controller.close();
+          });
+
+          child.on("error", (err) => {
+            controller.enqueue(
+              formatSse({ type: "error", content: err.message }),
+            );
+            controller.error(err);
+          });
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error ? error.message : String(error);
           controller.enqueue(
             formatSse({
-              type: "close",
-              content: `Process exited with code ${code}`,
+              type: "error",
+              content: `Failed to start command: ${errorMessage}`,
             }),
           );
           controller.close();
-        });
-
-        child.on("error", (err) => {
-          controller.enqueue(
-            formatSse({ type: "error", content: err.message }),
-          );
-          controller.error(err);
-        });
+        }
       },
     });
 

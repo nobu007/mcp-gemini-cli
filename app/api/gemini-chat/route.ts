@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { handleGeminiChatStream } from "../../../lib/gemini-api";
+import { handleGeminiChatStream } from "@/lib/gemini-api";
 import { z } from "zod";
 
 const ChatRequestSchema = z.object({

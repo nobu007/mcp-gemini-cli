@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { handleGoogleSearch } from "../../../lib/gemini-api";
+import { handleGoogleSearch } from "@/lib/gemini-api";
 import { z } from "zod";
 
 const SearchRequestSchema = z.object({

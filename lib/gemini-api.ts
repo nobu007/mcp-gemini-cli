@@ -4,7 +4,7 @@ import {
   decideGeminiCliCommand,
   streamGeminiCli,
   GeminiChatParametersSchema,
-} from "../index";
+} from "@/lib/tools";
 import { TIMEOUT_CONFIG } from "../config";
 
 // Helper to format SSE messages
