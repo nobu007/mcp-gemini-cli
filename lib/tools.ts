@@ -36,18 +36,18 @@ export async function decideGeminiCliCommand(
           `[tools] 'gemini' not found in PATH. which exited with code ${code}. Stderr: ${whichStderr.trim()}`,
         );
         console.log(
-          "[tools] Falling back to 'npx @google-gemini/cli' as 'gemini' was not found in PATH.",
+          "[tools] Falling back to 'npx @google/gemini-cli' as 'gemini' was not found in PATH.",
         );
-        resolve({ command: "npx", initialArgs: ["@google-gemini/cli"] });
+        resolve({ command: "npx", initialArgs: ["@google/gemini-cli"] });
       }
     });
 
     whichChild.on("error", (err) => {
       console.error(`[tools] Error executing 'which gemini': ${err.message}`);
       console.log(
-        "[tools] Falling back to 'npx @google-gemini/cli' due to 'which' command error.",
+        "[tools] Falling back to 'npx @google/gemini-cli' due to 'which' command error.",
       );
-      resolve({ command: "npx", initialArgs: ["@google-gemini/cli"] });
+      resolve({ command: "npx", initialArgs: ["@google/gemini-cli"] });
     });
   });
 }
@@ -66,16 +66,36 @@ export async function executeGeminiCli(
   args: string[],
   timeoutMs: number = TIMEOUT_CONFIG.DEFAULT_TIMEOUT_MS,
   workingDirectory?: string,
-  env?: Record<string, string>,
+  env?: Record<string, string | undefined>,
 ): Promise<string> {
-  const escapeShellArg = (arg: string) => `'${arg.replace(/'/g, "'\\''")}'`;
-
-  const { command, initialArgs } = geminiCliCommand;
+  const { command, initialArgs} = geminiCliCommand;
   const allArgs = [...initialArgs, ...args];
-  const commandString = [command, ...allArgs.map(escapeShellArg)].join(" ");
 
   const cwd = workingDirectory || process.cwd();
-  const fullEnv = { ...process.env, ...env };
+
+  // Create a mutable copy of the environment
+  const fullEnv: Record<string, string | undefined> = { ...process.env };
+
+  // Disable IDE integration for gemini-cli to avoid authentication issues
+  delete fullEnv.GEMINI_CLI_IDE_SERVER_PORT;
+  delete fullEnv.GEMINI_CLI_IDE_WORKSPACE_PATH;
+  delete fullEnv.ENABLE_IDE_INTEGRATION;
+
+  // Remove GEMINI_API_KEY to use OAuth authentication instead
+  delete fullEnv.GEMINI_API_KEY;
+
+  // Apply custom environment variables
+  if (env) {
+    for (const [key, value] of Object.entries(env)) {
+      if (value === undefined) {
+        // Unset the environment variable
+        delete fullEnv[key];
+      } else {
+        // Set or overwrite the environment variable
+        fullEnv[key] = value;
+      }
+    }
+  }
 
   // Mask API key for logging
   const loggedEnv = { ...fullEnv };
@@ -83,12 +103,12 @@ export async function executeGeminiCli(
     loggedEnv.GEMINI_API_KEY = "[MASKED]";
   }
 
-  console.log(`[tools] Executing via bash -c: ${commandString}`);
+  console.log(`[tools] Executing: ${command} ${allArgs.join(" ")}`);
   console.log(`[tools] Working directory: ${cwd}`);
   console.log(`[tools] Environment variables: ${JSON.stringify(loggedEnv)}`);
 
   return new Promise((resolve, reject) => {
-    const child = spawn("bash", ["-c", commandString], {
+    const child = spawn(command, allArgs, {
       stdio: ["pipe", "pipe", "pipe"],
       cwd: cwd,
       env: fullEnv,
@@ -102,7 +122,7 @@ export async function executeGeminiCli(
         isResolved = true;
         child.kill("SIGTERM");
         console.error(
-          `[tools] Command timed out after ${timeoutMs}ms: ${commandString}`,
+          `[tools] Command timed out after ${timeoutMs}ms: ${command} ${allArgs.join(" ")}`,
         );
         reject(
           new Error(`gemini-cli operation timed out after ${timeoutMs}ms`),
@@ -127,7 +147,7 @@ export async function executeGeminiCli(
         isResolved = true;
         clearTimeout(timeout);
         console.log(
-          `[tools] Command exited with code ${code}: ${commandString}`,
+          `[tools] Command exited with code ${code}: ${command} ${allArgs.join(" ")}`,
         );
         if (code === 0) {
           resolve(stdout);
@@ -142,7 +162,7 @@ export async function executeGeminiCli(
         isResolved = true;
         clearTimeout(timeout);
         console.error(
-          `[tools] Failed to start command ${commandString}: ${err.message}`,
+          `[tools] Failed to start command ${command} ${allArgs.join(" ")}: ${err.message}`,
         );
         reject(err);
       }
@@ -162,16 +182,36 @@ export function streamGeminiCli(
   geminiCliCommand: { command: string; initialArgs: string[] },
   args: string[],
   workingDirectory?: string,
-  env?: Record<string, string>,
+  env?: Record<string, string | undefined>,
 ) {
-  const escapeShellArg = (arg: string) => `'${arg.replace(/'/g, "'\\''")}'`;
-
   const { command, initialArgs } = geminiCliCommand;
   const allArgs = [...initialArgs, ...args];
-  const commandString = [command, ...allArgs.map(escapeShellArg)].join(" ");
 
   const cwd = workingDirectory || process.cwd();
-  const fullEnv = { ...process.env, ...env };
+
+  // Create a mutable copy of the environment
+  const fullEnv: Record<string, string | undefined> = { ...process.env };
+
+  // Disable IDE integration for gemini-cli to avoid authentication issues
+  delete fullEnv.GEMINI_CLI_IDE_SERVER_PORT;
+  delete fullEnv.GEMINI_CLI_IDE_WORKSPACE_PATH;
+  delete fullEnv.ENABLE_IDE_INTEGRATION;
+
+  // Remove GEMINI_API_KEY to use OAuth authentication instead
+  delete fullEnv.GEMINI_API_KEY;
+
+  // Apply custom environment variables
+  if (env) {
+    for (const [key, value] of Object.entries(env)) {
+      if (value === undefined) {
+        // Unset the environment variable
+        delete fullEnv[key];
+      } else {
+        // Set or overwrite the environment variable
+        fullEnv[key] = value;
+      }
+    }
+  }
 
   // Mask API key for logging
   const loggedEnv = { ...fullEnv };
@@ -179,11 +219,11 @@ export function streamGeminiCli(
     loggedEnv.GEMINI_API_KEY = "[MASKED]";
   }
 
-  console.log(`[tools] Streaming via bash -c: ${commandString}`);
+  console.log(`[tools] Streaming: ${command} ${allArgs.join(" ")}`);
   console.log(`[tools] Working directory: ${cwd}`);
   console.log(`[tools] Environment variables: ${JSON.stringify(loggedEnv)}`);
 
-  const child = spawn("bash", ["-c", commandString], {
+  const child = spawn(command, allArgs, {
     stdio: ["pipe", "pipe", "pipe"],
     cwd: cwd,
     env: fullEnv,
@@ -263,8 +303,9 @@ export async function executeGoogleSearch(args: unknown, allowNpx = false) {
   const geminiCliCmd = await decideGeminiCliCommand(allowNpx);
 
   // Use provided working directory or environment variable default
+  // Default to /tmp to avoid project context detection by gemini-cli
   const workingDir =
-    parsedArgs.workingDirectory || process.env.GEMINI_CLI_WORKING_DIR;
+    parsedArgs.workingDirectory || process.env.GEMINI_CLI_WORKING_DIR || "/tmp";
 
   // Prepare environment variables
   const envVars: Record<string, string> = {};
@@ -343,8 +384,9 @@ export async function executeGeminiChat(args: unknown, allowNpx = false) {
   const geminiCliCmd = await decideGeminiCliCommand(allowNpx);
 
   // Use provided working directory or environment variable default
+  // Default to /tmp to avoid project context detection by gemini-cli
   const workingDir =
-    parsedArgs.workingDirectory || process.env.GEMINI_CLI_WORKING_DIR;
+    parsedArgs.workingDirectory || process.env.GEMINI_CLI_WORKING_DIR || "/tmp";
 
   // Prepare environment variables
   const envVars: Record<string, string> = {};

@@ -143,10 +143,17 @@ export function handleGeminiChatStream(
 
         const workingDir =
           parsedArgs.workingDirectory || process.env.GEMINI_CLI_WORKING_DIR;
-        const envVars: Record<string, string> = {};
+
+        const envVars: Record<string, string | undefined> = {};
         if (parsedArgs.apiKey) {
+          // Use the provided API key
           envVars.GEMINI_API_KEY = parsedArgs.apiKey;
+        } else {
+          // Explicitly prevent inheriting GEMINI_API_KEY from the parent process
+          // to allow fallback to local authentication (e.g., gcloud auth).
+          envVars.GEMINI_API_KEY = undefined;
         }
+
         // Mask API key for logging
         const loggedEnvVars = { ...envVars };
         if (loggedEnvVars.GEMINI_API_KEY) {
