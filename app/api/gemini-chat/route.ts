@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const prompt = searchParams.get("prompt");
   console.log(
-    `[gemini-chat/route] GET request received. Prompt: "${prompt ? prompt.substring(0, 100) + "..." : ""}", SearchParams: ${searchParams.toString()}`,
+    `[gemini-chat/route] GET request received. Prompt: "${prompt ? `${prompt.substring(0, 100)}...` : ""}", SearchParams: ${searchParams.toString()}`,
   );
 
   if (!prompt) {
