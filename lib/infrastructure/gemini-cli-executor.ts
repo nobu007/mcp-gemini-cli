@@ -39,6 +39,14 @@ export class GeminiCliExecutor extends CliExecutor {
 
   /**
    * Builds CLI arguments for Google Search
+   * @param params - Search parameters
+   * @param params.query - Search query string
+   * @param params.limit - Maximum number of results to return
+   * @param params.raw - If true, returns structured JSON with sources
+   * @param params.sandbox - If true, runs in sandbox mode
+   * @param params.yolo - If true, auto-accepts all prompts
+   * @param params.model - Optional model name to use
+   * @returns Array of CLI arguments ready for execution
    */
   static buildSearchArgs(params: {
     query: string;
@@ -79,6 +87,12 @@ export class GeminiCliExecutor extends CliExecutor {
 
   /**
    * Builds CLI arguments for Chat
+   * @param params - Chat parameters
+   * @param params.prompt - User prompt/question
+   * @param params.sandbox - If true, runs in sandbox mode
+   * @param params.yolo - If true, auto-accepts all prompts
+   * @param params.model - Optional model name to use
+   * @returns Array of CLI arguments ready for execution
    */
   static buildChatArgs(params: {
     prompt: string;
@@ -103,6 +117,9 @@ export class GeminiCliExecutor extends CliExecutor {
 
   /**
    * Post-processes raw search results (attempts JSON parsing)
+   * @param result - Raw output from Gemini CLI search
+   * @returns Pretty-printed JSON if parseable, otherwise raw output
+   * @remarks Automatically removes markdown code fence wrapping if present
    */
   static processRawSearchResult(result: string): string {
     try {

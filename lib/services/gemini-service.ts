@@ -39,22 +39,39 @@ export class GeminiService {
   }
 
   /**
+   * Prepares execution context (working directory and environment variables)
+   * This eliminates duplication across search/chat/chatStream methods
+   */
+  private prepareExecutionContext(
+    workingDirectory?: string,
+    apiKey?: string,
+  ): { workingDir: string; envVars: Record<string, string | undefined> } {
+    const workingDir = EnvManager.resolveWorkingDirectory(
+      workingDirectory,
+      process.env.GEMINI_CLI_WORKING_DIR,
+    );
+
+    const envVars = EnvManager.fromToolArgs({ apiKey });
+
+    return { workingDir, envVars };
+  }
+
+  /**
    * Executes a Google search
+   * @param params - Search parameters including query, limit, and options
+   * @param allowNpx - Whether to allow npx fallback for CLI resolution
+   * @returns Search results as a string (JSON if raw=true, formatted otherwise)
+   * @throws Error if CLI execution fails or times out
    */
   async search(
     params: GoogleSearchParameters,
     allowNpx = false,
   ): Promise<string> {
     const geminiCliCmd = await this.resolveCliCommand(allowNpx);
-
-    const workingDir = EnvManager.resolveWorkingDirectory(
+    const { workingDir, envVars } = this.prepareExecutionContext(
       params.workingDirectory,
-      process.env.GEMINI_CLI_WORKING_DIR,
+      params.apiKey,
     );
-
-    const envVars = EnvManager.fromToolArgs({
-      apiKey: params.apiKey,
-    });
 
     const cliArgs = GeminiCliExecutor.buildSearchArgs({
       query: params.query,
@@ -81,18 +98,17 @@ export class GeminiService {
 
   /**
    * Executes a chat conversation
+   * @param params - Chat parameters including prompt and options
+   * @param allowNpx - Whether to allow npx fallback for CLI resolution
+   * @returns Chat response as a string
+   * @throws Error if CLI execution fails or times out
    */
   async chat(params: GeminiChatParameters, allowNpx = false): Promise<string> {
     const geminiCliCmd = await this.resolveCliCommand(allowNpx);
-
-    const workingDir = EnvManager.resolveWorkingDirectory(
+    const { workingDir, envVars } = this.prepareExecutionContext(
       params.workingDirectory,
-      process.env.GEMINI_CLI_WORKING_DIR,
+      params.apiKey,
     );
-
-    const envVars = EnvManager.fromToolArgs({
-      apiKey: params.apiKey,
-    });
 
     const cliArgs = GeminiCliExecutor.buildChatArgs({
       prompt: params.prompt,
@@ -112,21 +128,20 @@ export class GeminiService {
 
   /**
    * Streams a chat conversation
+   * @param params - Chat parameters including prompt and options
+   * @param allowNpx - Whether to allow npx fallback for CLI resolution
+   * @returns ChildProcess for streaming the response
+   * @throws Error if CLI process fails to spawn
    */
   async chatStream(
     params: GeminiChatParameters,
     allowNpx = false,
   ): Promise<ChildProcess> {
     const geminiCliCmd = await this.resolveCliCommand(allowNpx);
-
-    const workingDir = EnvManager.resolveWorkingDirectory(
+    const { workingDir, envVars } = this.prepareExecutionContext(
       params.workingDirectory,
-      process.env.GEMINI_CLI_WORKING_DIR,
+      params.apiKey,
     );
-
-    const envVars = EnvManager.fromToolArgs({
-      apiKey: params.apiKey,
-    });
 
     const cliArgs = GeminiCliExecutor.buildChatArgs({
       prompt: params.prompt,
