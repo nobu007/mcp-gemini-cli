@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback, useId } from "react";
+import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import TemplateSelector from "../components/TemplateSelector";
 import {
-  buildGoogleSearchCommand,
   buildGeminiChatCommand,
+  buildGoogleSearchCommand,
 } from "../lib/cli-preview";
 
 export default function Home() {

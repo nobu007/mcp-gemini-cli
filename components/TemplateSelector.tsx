@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import {
-  customInstructionTemplates,
   type CustomInstructionTemplate,
+  customInstructionTemplates,
 } from "./templates";
 
 interface TemplateSelectorProps {

@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { handleGoogleSearch } from "@/lib/gemini-api";
 import { z } from "zod";
+import { handleGoogleSearch } from "@/lib/gemini-api";
 
 const SearchRequestSchema = z.object({
   query: z.string().min(1, "Query is required"),

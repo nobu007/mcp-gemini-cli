@@ -1,0 +1,4 @@
+[test]
+# Exclude Playwright E2E tests from bun test (they have their own runner)
+# E2E tests use .spec.ts and should be run with `bun run playwright test`
+exclude = ["tests/e2e/**", "**/*.spec.ts"]

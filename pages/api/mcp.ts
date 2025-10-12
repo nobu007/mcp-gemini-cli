@@ -1,8 +1,8 @@
-import type { NextApiRequest, NextApiResponse } from "next";
 import { randomUUID } from "node:crypto";
-import { mcpServer } from "@/lib/mcp-server";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
+import type { NextApiRequest, NextApiResponse } from "next";
+import { mcpServer } from "@/lib/mcp-server";
 
 // In-memory store for active transports, keyed by session ID.
 // This works for a single-server development environment.

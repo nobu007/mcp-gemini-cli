@@ -1,10 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import {
-  GoogleSearchParametersSchema,
-  GeminiChatParametersSchema,
-  executeGoogleSearch,
-  executeGeminiChat,
-} from "@/lib/tools";
+import { TOOL_DEFINITIONS } from "@/lib/core/schemas";
+import { executeGeminiChat, executeGoogleSearch } from "@/lib/tools";
 
 // Allow Npx should be configured somewhere, for now, it's true
 const allowNpx = true;
@@ -14,11 +10,11 @@ export const mcpServer = new McpServer({
   version: "0.2.0",
 });
 
-// Register googleSearch tool using the simpler tool() method
+// Register googleSearch tool using centralized definitions
 mcpServer.tool(
-  "googleSearch",
-  "Performs a Google search using gemini-cli and returns structured results.",
-  GoogleSearchParametersSchema.shape,
+  TOOL_DEFINITIONS.googleSearch.name,
+  TOOL_DEFINITIONS.googleSearch.description,
+  TOOL_DEFINITIONS.googleSearch.schema,
   async (args) => {
     const result = await executeGoogleSearch(args, allowNpx);
     return {
@@ -32,11 +28,11 @@ mcpServer.tool(
   },
 );
 
-// Register geminiChat tool using the simpler tool() method
+// Register geminiChat tool using centralized definitions
 mcpServer.tool(
-  "geminiChat",
-  "Engages in a chat conversation with gemini-cli.",
-  GeminiChatParametersSchema.shape,
+  TOOL_DEFINITIONS.geminiChat.name,
+  TOOL_DEFINITIONS.geminiChat.description,
+  TOOL_DEFINITIONS.geminiChat.schema,
   async (args) => {
     const result = await executeGeminiChat(args, allowNpx);
     return {

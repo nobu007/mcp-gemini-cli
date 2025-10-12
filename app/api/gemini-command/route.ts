@@ -1,6 +1,6 @@
+import { spawn } from "node:child_process";
 import type { NextRequest } from "next/server";
 import { z } from "zod";
-import { spawn } from "node:child_process";
 import { decideGeminiCliCommand } from "@/lib/tools";
 
 const CommandRequestSchema = z.object({

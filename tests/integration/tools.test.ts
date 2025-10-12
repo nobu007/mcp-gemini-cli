@@ -1,9 +1,9 @@
-import { describe, expect, test, beforeAll } from "bun:test";
+import { beforeAll, describe, expect, test } from "bun:test";
 import {
   decideGeminiCliCommand,
+  executeGeminiChat,
   executeGeminiCli,
   executeGoogleSearch,
-  executeGeminiChat,
 } from "../../lib/tools.ts";
 
 // Check if gemini-cli is available
@@ -56,7 +56,7 @@ describe("MCP Gemini CLI Integration Tests", () => {
         // This is expected to fail
         expect(error).toBeInstanceOf(Error);
         expect(error instanceof Error && error.message).toMatch(
-          /gemini exited with code|Executable not found/,
+          /CLI exited with code|Executable not found/,
         );
       }
     });

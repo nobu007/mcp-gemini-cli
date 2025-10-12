@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
-import { handleGeminiChatStream } from "@/lib/gemini-api";
 import { z } from "zod";
+import { handleGeminiChatStream } from "@/lib/gemini-api";
 
 const ChatRequestSchema = z.object({
   prompt: z.string().min(1, "Prompt is required"),
