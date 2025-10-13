@@ -20,11 +20,13 @@ The top-level directory is organized as follows:
 ## 2. Subdirectory Structures
 
 ### `/lib` Directory
+
 - **/lib/core/**: Contains shared TypeScript types, interfaces, and Zod schemas that are used across the application.
 - **/lib/infrastructure/**: Includes modules that interact with external systems. This layer contains wrappers for the Gemini CLI, file system access, and environment variable management.
 - **/lib/services/**: Holds the core business logic of the application. Services in this layer orchestrate tasks by coordinating calls to infrastructure components.
 
 ### `/.kiro` Directory
+
 - **/.kiro/specs/**: Contains all feature specifications. Each feature has its own subdirectory with `requirements.md`, `design.md`, and `tasks.md`.
 - **/.kiro/steering/**: Contains project-wide steering documents (`product.md`, `tech.md`, `structure.md`) that provide context to the AI agent for development tasks.
 
@@ -32,10 +34,10 @@ The top-level directory is organized as follows:
 
 The project adheres to a layered architecture to enforce separation of concerns:
 
-1.  **Presentation Layer (UI/CLI)**: The `app/` and `cli.ts` files. This layer is responsible for user interaction and should not contain business logic.
-2.  **Service Layer (`lib/services`)**: This layer contains the application's business logic. It is called by the presentation layer and orchestrates data flow.
-3.  **Infrastructure Layer (`lib/infrastructure`)**: This layer handles all communication with external systems (e.g., file system, external CLIs). It is called by the service layer.
-4.  **Core Domain (`lib/core`)**: This layer contains shared data structures and types used by all other layers.
+1. **Presentation Layer (UI/CLI)**: The `app/` and `cli.ts` files. This layer is responsible for user interaction and should not contain business logic.
+2. **Service Layer (`lib/services`)**: This layer contains the application's business logic. It is called by the presentation layer and orchestrates data flow.
+3. **Infrastructure Layer (`lib/infrastructure`)**: This layer handles all communication with external systems (e.g., file system, external CLIs). It is called by the service layer.
+4. **Core Domain (`lib/core`)**: This layer contains shared data structures and types used by all other layers.
 
 ## 4. File Naming Conventions
 

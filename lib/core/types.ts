@@ -40,3 +40,10 @@ export interface GeminiCliCommand {
   command: string;
   initialArgs: string[];
 }
+
+/**
+ * A generic Result type for operations that can either succeed or fail.
+ */
+export type Result<T, E = Error> =
+  | { success: true; value: T }
+  | { success: false; error: E };

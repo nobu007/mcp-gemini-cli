@@ -14,6 +14,7 @@ The project follows a layered architecture to ensure a clear separation of conce
 ## 2. Technology Stack
 
 ### Backend & Core Logic
+
 - **Language**: TypeScript
 - **Runtime**: Bun / Node.js
 - **Key Libraries**:
@@ -22,6 +23,7 @@ The project follows a layered architecture to ensure a clear separation of conce
   - `zod`: For schema declaration and validation.
 
 ### Frontend
+
 - **Framework**: Next.js / React
 - **Styling**: Tailwind CSS
 
