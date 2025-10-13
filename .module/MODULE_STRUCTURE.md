@@ -2,7 +2,7 @@
 
 ## Directory Layout
 
-```
+```text
 mcp-gemini-cli/
 ├── lib/                        # Core library code
 │   ├── infrastructure/         # External system interactions
@@ -123,7 +123,7 @@ import { geminiService } from "../services/gemini-service"; // BAD in infrastruc
 
 ## Current File Sizes
 
-```
+```text
 217 lib/infrastructure/cli-executor.ts       ✅ Within guidelines
 122 lib/infrastructure/gemini-cli-executor.ts ✅ Within guidelines
 110 lib/infrastructure/env-manager.ts         ✅ Within guidelines
@@ -142,7 +142,7 @@ import { geminiService } from "../services/gemini-service"; // BAD in infrastruc
 
 ## Dependency Graph
 
-```
+```text
 ┌─────────────────────────────────────────┐
 │  Presentation Layer (CLI/API)           │
 │  - cli.ts, index.ts                     │

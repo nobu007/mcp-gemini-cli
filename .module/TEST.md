@@ -27,7 +27,7 @@ This module follows a layered testing approach matching the architecture:
 
 ## Test Structure
 
-```
+```text
 tests/
 ├── unit/
 │   ├── infrastructure/

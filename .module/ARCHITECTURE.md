@@ -35,7 +35,7 @@
 
 ## Dependency Flow
 
-```
+```text
 Presentation Layer (API/CLI)
     ↓ depends on
 Service Layer (gemini-service)
@@ -49,7 +49,7 @@ Infrastructure Layer (cli-executor, env-manager)
 
 ### Current Issues
 
-```
+```text
 cli.ts
   ├─ duplicates schemas from tools.ts
   ├─ duplicates server setup from mcp-server.ts
@@ -67,7 +67,7 @@ gemini-api.ts
 
 ### Target Structure
 
-```
+```text
 lib/
   ├─ infrastructure/
   │   ├─ cli-executor.ts (base class + common patterns)

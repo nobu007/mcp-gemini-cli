@@ -410,7 +410,7 @@ setTimeout(() => {
 
 ### Error Propagation
 
-```
+```text
 Infrastructure Layer → Service Layer → API Layer → Client
      (throw Error)   →  (catch + log) → (format)  → (JSON)
 ```

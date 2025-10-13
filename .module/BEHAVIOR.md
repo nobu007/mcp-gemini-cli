@@ -6,43 +6,7 @@ MCP Gemini CLI provides a Model Context Protocol (MCP) server that wraps Google'
 
 ## Input/Output Specifications
 
-### Tool: googleSearch
-
-#### Input
-
-```typescript
-{
-  query: string;                // Required: The search query
-  limit?: number;               // Optional: Max results to return
-  raw?: boolean;                // Optional: Return raw JSON with sources
-  sandbox?: boolean;            // Optional: Run in sandbox mode
-  yolo?: boolean;               // Optional: Auto-accept all actions
-  model?: string;               // Optional: Gemini model to use
-  workingDirectory?: string;    // Optional: Working directory for execution
-  apiKey?: string;              // Optional: Gemini API key
-}
-```
-
-#### Output
-
-```typescript
-// Default mode: Plain text summary
-"Found 5 results for 'AI news':\n1. Article about...\n2. Research on..."
-
-// Raw mode: JSON with sources
-{
-  "summary": "Recent AI developments include...",
-  "sources": [
-    {
-      "url": "https://example.com/article",
-      "title": "AI Breakthrough",
-      "snippet": "Scientists discovered..."
-    }
-  ]
-}
-```
-
-#### Error Cases
+### googleSearch Input
 
 1. **Invalid Query**: Empty or missing query string
    - Response: Zod validation error
@@ -55,7 +19,7 @@ MCP Gemini CLI provides a Model Context Protocol (MCP) server that wraps Google'
 
 ### Tool: geminiChat
 
-#### Input
+### geminiChat Input
 
 ```typescript
 {
@@ -68,14 +32,14 @@ MCP Gemini CLI provides a Model Context Protocol (MCP) server that wraps Google'
 }
 ```
 
-#### Output
+### googleSearch Output
 
 ```typescript
 // Plain text response from Gemini
 "The capital of France is Paris. It has been the capital since..."
 ```
 
-#### Error Cases
+### googleSearch Error Cases
 
 1. **Invalid Prompt**: Empty or missing prompt
    - Response: Zod validation error
@@ -90,7 +54,7 @@ MCP Gemini CLI provides a Model Context Protocol (MCP) server that wraps Google'
 
 ### MCP Server Mode (stdio)
 
-```
+```text
 1. Client sends MCP tool request
    ↓
 2. MCP server receives request
@@ -114,7 +78,7 @@ MCP Gemini CLI provides a Model Context Protocol (MCP) server that wraps Google'
 
 ### Web Server Mode (HTTP/SSE)
 
-```
+```text
 1. HTTP request to /api/gemini-chat or /api/google-search
    ↓
 2. Next.js API route receives request
@@ -160,7 +124,7 @@ For streaming (/api/gemini-chat with SSE):
 
 ### Process Lifecycle
 
-```
+```text
 Spawn → Setup timeout → Collect output → Close/Error → Cleanup
 ```
 
