@@ -9,6 +9,7 @@
 import { describe, test, expect, mock, beforeEach } from "bun:test";
 import type { ChildProcess } from "node:child_process";
 import { EventEmitter } from "node:events";
+import { Readable } from "node:stream";
 
 describe("Gemini API Handlers", async () => {
   // Mock the service layer before importing gemini-api
@@ -16,11 +17,11 @@ describe("Gemini API Handlers", async () => {
     search: mock(async () => "Search result"),
     chat: mock(async () => "Chat response"),
     chatStream: mock(() => {
-      const mockChild = new EventEmitter() as ChildProcess;
-      mockChild.stdout = new EventEmitter() as NodeJS.ReadableStream;
-      mockChild.stderr = new EventEmitter() as NodeJS.ReadableStream;
-      mockChild.kill = mock(() => true);
-      return Promise.resolve(mockChild);
+      const mockChild = new EventEmitter();
+      (mockChild as ChildProcess).stdout = new Readable({ read() {} });
+      (mockChild as ChildProcess).stderr = new Readable({ read() {} });
+      (mockChild as ChildProcess).kill = mock(() => true);
+      return Promise.resolve(mockChild as ChildProcess);
     }),
   };
 

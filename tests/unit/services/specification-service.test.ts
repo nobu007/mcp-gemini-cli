@@ -5,7 +5,8 @@ import type { NameGenerationService } from "../../../lib/services/name-generatio
 import { ok, err } from "neverthrow";
 
 // Type-safe mock definitions
-type MockFunction<T extends (...args: unknown[]) => unknown> = T & {
+// biome-ignore lint/suspicious/noExplicitAny: Mock helper needs flexible typing for testing
+type MockFunction<T extends (...args: any[]) => any> = T & {
   mock: {
     calls: Parameters<T>[];
   };
@@ -82,11 +83,14 @@ describe("SpecificationService", () => {
       await specificationService.initialize("My Feature");
 
       expect(fileSystemService.writeFile).toHaveBeenCalled();
-      const mockWriteFile = fileSystemService.writeFile as MockFunction<typeof fileSystemService.writeFile>;
+      const mockWriteFile = fileSystemService.writeFile as MockFunction<
+        typeof fileSystemService.writeFile
+      >;
       const writeCall = mockWriteFile.mock.calls[0];
-      expect(writeCall[0]).toBe(".kiro/specs/new-feature/spec.json");
+      expect(writeCall).toBeDefined();
+      expect(writeCall?.[0]).toBe(".kiro/specs/new-feature/spec.json");
 
-      const specContent = JSON.parse(writeCall[1]);
+      const specContent = JSON.parse(writeCall?.[1] || "{}");
       expect(specContent.feature_name).toBe("new-feature");
       expect(specContent.phase).toBe("initialized");
       expect(specContent.language).toBe("ja");
@@ -183,18 +187,24 @@ describe("SpecificationService", () => {
 
       await customService.initialize("Feature");
 
-      const mockWriteFile = fileSystemService.writeFile as MockFunction<typeof fileSystemService.writeFile>;
+      const mockWriteFile = fileSystemService.writeFile as MockFunction<
+        typeof fileSystemService.writeFile
+      >;
       const writeCall = mockWriteFile.mock.calls[0];
-      const specContent = JSON.parse(writeCall[1]);
+      expect(writeCall).toBeDefined();
+      const specContent = JSON.parse(writeCall?.[1] || "{}");
       expect(specContent.language).toBe("en");
     });
 
     it("should include ISO 8601 timestamps", async () => {
       await specificationService.initialize("Feature");
 
-      const mockWriteFile = fileSystemService.writeFile as MockFunction<typeof fileSystemService.writeFile>;
+      const mockWriteFile = fileSystemService.writeFile as MockFunction<
+        typeof fileSystemService.writeFile
+      >;
       const writeCall = mockWriteFile.mock.calls[0];
-      const specContent = JSON.parse(writeCall[1]);
+      expect(writeCall).toBeDefined();
+      const specContent = JSON.parse(writeCall?.[1] || "{}");
 
       // Validate ISO 8601 format
       const createdDate = new Date(specContent.created_at);
@@ -221,9 +231,12 @@ describe("SpecificationService", () => {
     it("should format spec.json with proper indentation", async () => {
       await specificationService.initialize("Feature");
 
-      const mockWriteFile = fileSystemService.writeFile as MockFunction<typeof fileSystemService.writeFile>;
+      const mockWriteFile = fileSystemService.writeFile as MockFunction<
+        typeof fileSystemService.writeFile
+      >;
       const writeCall = mockWriteFile.mock.calls[0];
-      const jsonString = writeCall[1];
+      expect(writeCall).toBeDefined();
+      const jsonString = writeCall?.[1] || "";
 
       // Check for indentation (2 spaces)
       expect(jsonString).toContain("\n  ");
