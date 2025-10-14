@@ -1,6 +1,6 @@
-import { describe, it, expect, mock, spyOn } from "bun:test";
+import { describe, expect, it, mock, spyOn } from "bun:test";
+import * as fs from "node:fs/promises";
 import { FileSystemServiceImpl } from "../../../lib/infrastructure/file-system-service";
-import * as fs from "fs/promises";
 
 mock.module("fs/promises", () => ({
   readdir: mock(() => Promise.resolve([])),
