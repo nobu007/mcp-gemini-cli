@@ -19,7 +19,7 @@ The server provides RESTful API endpoints for interacting with Gemini services. 
 | `raw` | boolean | No | If `true`, returns structured JSON results. |
 | `sandbox` | boolean | No | Run in sandbox mode. |
 | `yolo` | boolean | No | Skip confirmation prompts. |
-| `model` | string | No | Gemini model to use (e.g., "gemini-1.5-pro"). |
+| `model` | string | No | Gemini model to use (default: "gemini-2.5-pro", fallback: "gemini-2.5-flash"). |
 
 **Example (cURL):**
 
@@ -42,7 +42,7 @@ curl -X POST http://localhost:3000/api/google-search \
 | `prompt` | string | Yes | The prompt to send to Gemini. |
 | `sandbox` | boolean | No | Run in sandbox mode. |
 | `yolo` | boolean | No | Skip confirmation prompts. |
-| `model` | string | No | Gemini model to use (e.g., "gemini-1.5-pro"). |
+| `model` | string | No | Gemini model to use (default: "gemini-2.5-pro", fallback: "gemini-2.5-flash"). |
 
 **Example (cURL):**
 

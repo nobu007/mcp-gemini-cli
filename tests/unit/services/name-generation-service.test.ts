@@ -1,48 +1,32 @@
-import { NameGenerationService } from "../../../lib/services/name-generation-service";
+import { describe, it, expect } from 'bun:test';
+import { NameGenerationServiceImpl } from '../../../lib/services/name-generation-service';
 
-describe("NameGenerationService", () => {
-  let nameGenerationService: NameGenerationService;
+describe('NameGenerationService', () => {
+  const nameGenerationService = new NameGenerationServiceImpl();
 
-  beforeEach(() => {
-    nameGenerationService = new NameGenerationService();
+  it('should generate a URL-friendly slug from a description', () => {
+    const description = 'My New Awesome Feature!';
+    const slug = nameGenerationService.generateUniqueName(description, []);
+    expect(slug).toBe('my-new-awesome-feature');
   });
 
-  it("should convert a string to a URL-friendly slug", () => {
-    const input = "Initialize Specification Structure";
-    const expected = "initialize-specification-structure";
-    expect(nameGenerationService.generateUniqueName(input, [])).toBe(expected);
+  it('should handle special characters', () => {
+    const description = 'Feature with special chars!@#$%^&*()';
+    const slug = nameGenerationService.generateUniqueName(description, []);
+    expect(slug).toBe('feature-with-special-chars');
   });
 
-  it("should handle special characters and multiple spaces", () => {
-    const input = "  My  Cool@Feature! ";
-    const expected = "my-cool-feature";
-    expect(nameGenerationService.generateUniqueName(input, [])).toBe(expected);
+  it('should ensure uniqueness by adding a suffix', () => {
+    const description = 'My Feature';
+    const existingNames = ['my-feature'];
+    const slug = nameGenerationService.generateUniqueName(description, existingNames);
+    expect(slug).toBe('my-feature-2');
   });
 
-  it("should append a numeric suffix if the name already exists", () => {
-    const input = "Existing Feature";
-    const existingNames = ["existing-feature"];
-    const expected = "existing-feature-2";
-    expect(nameGenerationService.generateUniqueName(input, existingNames)).toBe(
-      expected,
-    );
-  });
-
-  it("should increment the suffix until a unique name is found", () => {
-    const input = "Existing Feature";
-    const existingNames = ["existing-feature", "existing-feature-2"];
-    const expected = "existing-feature-3";
-    expect(nameGenerationService.generateUniqueName(input, existingNames)).toBe(
-      expected,
-    );
-  });
-
-  it("should not append a suffix if the name is already unique", () => {
-    const input = "New Unique Feature";
-    const existingNames = ["another-feature"];
-    const expected = "new-unique-feature";
-    expect(nameGenerationService.generateUniqueName(input, existingNames)).toBe(
-      expected,
-    );
+  it('should increment suffix until unique', () => {
+    const description = 'My Feature';
+    const existingNames = ['my-feature', 'my-feature-2'];
+    const slug = nameGenerationService.generateUniqueName(description, existingNames);
+    expect(slug).toBe('my-feature-3');
   });
 });

@@ -1,42 +1,40 @@
-import fs from "node:fs/promises";
-import type { Result } from "../core/types";
+import { Result, ok, err } from 'neverthrow';
+import { readdir, mkdir, writeFile as fsWriteFile } from 'fs/promises';
 
-export class FileSystemService {
+export interface FileSystemService {
+  getExistingSpecNames(path: string): Promise<string[]>;
+  createDirectory(path: string): Promise<Result<void, Error>>;
+  writeFile(path: string, content: string): Promise<Result<void, Error>>;
+}
+
+export class FileSystemServiceImpl implements FileSystemService {
   async getExistingSpecNames(path: string): Promise<string[]> {
     try {
-      const dirents = await fs.readdir(path, { withFileTypes: true });
-      return dirents
-        .filter((dirent) => dirent.isDirectory())
-        .map((dirent) => dirent.name);
+      const entries = await readdir(path, { withFileTypes: true });
+      return entries.filter(entry => entry.isDirectory()).map(entry => entry.name);
     } catch (error) {
-      // If the directory doesn't exist, return an empty array.
-      if (
-        error instanceof Error &&
-        "code" in error &&
-        error.code === "ENOENT"
-      ) {
+      if (error.code === 'ENOENT') {
         return [];
       }
-      // Re-throw other errors
       throw error;
     }
   }
 
-  async createDirectory(path: string): Promise<Result<void>> {
+  async createDirectory(path: string): Promise<Result<void, Error>> {
     try {
-      await fs.mkdir(path, { recursive: true });
-      return { success: true, value: undefined };
+      await mkdir(path, { recursive: true });
+      return ok(undefined);
     } catch (error) {
-      return { success: false, error: error as Error };
+      return err(error);
     }
   }
 
-  async writeFile(path: string, content: string): Promise<Result<void>> {
+  async writeFile(path: string, content: string): Promise<Result<void, Error>> {
     try {
-      await fs.writeFile(path, content, "utf-8");
-      return { success: true, value: undefined };
+      await fsWriteFile(path, content, 'utf-8');
+      return ok(undefined);
     } catch (error) {
-      return { success: false, error: error as Error };
+      return err(error);
     }
   }
 }

@@ -180,10 +180,10 @@ Spawn → Setup timeout → Collect output → Close/Error → Cleanup
 
 ```typescript
 // Input
-{ prompt: "Explain quantum computing", model: "gemini-1.5-pro" }
+{ prompt: "Explain quantum computing", model: "gemini-2.5-pro" }
 
 // Expected Flow
-1. Build args: ["-p", "Explain quantum computing", "-m", "gemini-1.5-pro"]
+1. Build args: ["-p", "Explain quantum computing", "-m", "gemini-2.5-pro"]
 2. Execute with 600s timeout (chat timeout)
 3. Return Gemini's response
 

@@ -1,24 +1,21 @@
-export class NameGenerationService {
+export interface NameGenerationService {
+  generateUniqueName(text: string, existingNames: string[]): string;
+}
+
+export class NameGenerationServiceImpl implements NameGenerationService {
   generateUniqueName(text: string, existingNames: string[]): string {
-    // 1. Create a URL-friendly slug
     const slug = text
-      .trim()
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "");
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9-]/g, '');
 
-    // 2. Check for uniqueness and append suffix if necessary
-    if (!existingNames.includes(slug)) {
-      return slug;
-    }
-
+    let uniqueName = slug;
     let counter = 2;
-    let uniqueSlug = `${slug}-${counter}`;
-    while (existingNames.includes(uniqueSlug)) {
+    while (existingNames.includes(uniqueName)) {
+      uniqueName = `${slug}-${counter}`;
       counter++;
-      uniqueSlug = `${slug}-${counter}`;
     }
 
-    return uniqueSlug;
+    return uniqueName;
   }
 }

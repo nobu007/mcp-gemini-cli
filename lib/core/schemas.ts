@@ -19,7 +19,7 @@ const BaseGeminiParametersSchema = z.object({
     .string()
     .optional()
     .describe(
-      'The Gemini model to use. Recommended: "gemini-1.5-pro" (default) or "gemini-1.5-flash". Both models are confirmed to work with Google login.',
+      'The Gemini model to use. Recommended: "gemini-2.5-pro" (default) or "gemini-2.5-flash" (fallback). Both models are confirmed to work with Google login.',
     ),
   workingDirectory: z
     .string()

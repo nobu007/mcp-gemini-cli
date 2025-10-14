@@ -85,6 +85,6 @@ export GEMINI_CLI_TIMEOUT_MS=120000 # 120 seconds
 ```typescript
 geminiChat({
   prompt: "Write a haiku about programming",
-  model: "gemini-1.5-flash"
+  model: "gemini-2.5-pro" // or "gemini-2.5-flash" as fallback
 });
 ```
