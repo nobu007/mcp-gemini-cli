@@ -106,6 +106,7 @@ Total:                18 modules
 **Total**: 15 occurrences
 
 **Breakdown**:
+
 - **1 intentional** (mcp-server.ts:154 - server initialization feedback)
 - **14 in JSDoc** @example tags (documentation, not executed code)
 

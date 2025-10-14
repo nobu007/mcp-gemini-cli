@@ -1,0 +1,10 @@
+{
+  "default": true,
+  "MD013": false,
+  "ignores": [
+    "node_modules/**",
+    ".module/**",
+    "**/node_modules/**",
+    "**/.module/**"
+  ]
+}
