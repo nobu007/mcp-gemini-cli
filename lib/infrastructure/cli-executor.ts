@@ -23,22 +23,41 @@ import {
 } from "./errors";
 import { createLogger, type Logger } from "./logger";
 
-export interface CliCommand {
-  command: string;
-  initialArgs: string[];
+/**
+ * Represents a CLI command with its base configuration
+ * @template TCommand - The command type (can be a literal string type for type safety)
+ */
+export interface CliCommand<TCommand extends string = string> {
+  /** The command executable name or path */
+  command: TCommand;
+  /** Initial arguments that are always prepended to the command (immutable) */
+  readonly initialArgs: readonly string[];
 }
 
+/**
+ * Configuration options for CLI command execution
+ */
 export interface CliExecutionOptions {
+  /** Timeout in milliseconds (default: TIMEOUT_CONFIG.DEFAULT_TIMEOUT_MS) */
   timeoutMs?: number;
+  /** Working directory for command execution (default: process.cwd()) */
   workingDirectory?: string;
+  /** Custom environment variables to merge with process.env */
   env?: Record<string, string | undefined>;
+  /** Retry configuration (default: DEFAULT_RETRY_CONFIG) */
   retry?: Partial<RetryConfig>;
 }
 
+/**
+ * Result of a CLI command execution
+ */
 export interface CliExecutionResult {
-  stdout: string;
-  stderr: string;
-  exitCode: number;
+  /** Standard output from the command */
+  readonly stdout: string;
+  /** Standard error output from the command */
+  readonly stderr: string;
+  /** Process exit code (0 indicates success) */
+  readonly exitCode: number;
 }
 
 /**

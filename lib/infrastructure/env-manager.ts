@@ -70,14 +70,18 @@ export class EnvManager {
 
   /**
    * Creates a version of the environment safe for logging (masks sensitive data)
+   * @param env - Environment object to mask
+   * @returns A shallow copy with sensitive values masked
    */
   static maskSensitiveData(
     env: Record<string, string | undefined>,
   ): Record<string, string | undefined> {
-    const masked = { ...env };
-    if (masked.GEMINI_API_KEY) {
-      masked.GEMINI_API_KEY = "[MASKED]";
+    // Only create a copy if masking is needed (performance optimization)
+    if (!env.GEMINI_API_KEY) {
+      return env;
     }
+    const masked = { ...env };
+    masked.GEMINI_API_KEY = "[MASKED]";
     return masked;
   }
 

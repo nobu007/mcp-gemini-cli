@@ -93,19 +93,19 @@ export class MaxRetriesExceededError extends CliError {
 }
 
 /**
- * Configuration for retry behavior
+ * Configuration for retry behavior with exponential backoff
  */
 export interface RetryConfig {
-  /** Maximum number of retry attempts (default: 3) */
-  maxAttempts: number;
-  /** Initial delay in milliseconds before first retry (default: 1000) */
-  initialDelayMs: number;
-  /** Multiplier for exponential backoff (default: 2) */
-  backoffMultiplier: number;
+  /** Maximum number of retry attempts (default: 3, must be >= 1) */
+  readonly maxAttempts: number;
+  /** Initial delay in milliseconds before first retry (default: 1000, must be > 0) */
+  readonly initialDelayMs: number;
+  /** Multiplier for exponential backoff (default: 2, must be >= 1) */
+  readonly backoffMultiplier: number;
   /** Maximum delay in milliseconds between retries (default: 30000) */
-  maxDelayMs: number;
-  /** Function to determine if an error is retryable (default: all errors) */
-  isRetryable: (error: Error) => boolean;
+  readonly maxDelayMs: number;
+  /** Function to determine if an error is retryable (default: intelligent CLI error detection) */
+  readonly isRetryable: (error: Error) => boolean;
 }
 
 /**

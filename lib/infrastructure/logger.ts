@@ -146,13 +146,22 @@ export class Logger {
 
   /**
    * Log debug message (lowest priority)
+   * @param message - Debug message or lazy message generator
+   * @param metadata - Optional metadata object
    */
-  debug(message: string, metadata?: Record<string, unknown>): void {
-    this.log("debug", message, metadata);
+  debug(
+    message: string | (() => string),
+    metadata?: Record<string, unknown>,
+  ): void {
+    if (!this.shouldLog("debug")) return;
+    const msg = typeof message === "function" ? message() : message;
+    this.log("debug", msg, metadata);
   }
 
   /**
    * Log info message (normal operations)
+   * @param message - Info message
+   * @param metadata - Optional metadata object
    */
   info(message: string, metadata?: Record<string, unknown>): void {
     this.log("info", message, metadata);
@@ -160,6 +169,8 @@ export class Logger {
 
   /**
    * Log warning message (recoverable issues)
+   * @param message - Warning message
+   * @param metadata - Optional metadata object
    */
   warn(message: string, metadata?: Record<string, unknown>): void {
     this.log("warn", message, metadata);
@@ -167,6 +178,8 @@ export class Logger {
 
   /**
    * Log error message (failures)
+   * @param message - Error message
+   * @param metadata - Optional metadata object
    */
   error(message: string, metadata?: Record<string, unknown>): void {
     this.log("error", message, metadata);
