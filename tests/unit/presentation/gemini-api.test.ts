@@ -25,8 +25,28 @@ describe("Gemini API Handlers", async () => {
   };
 
   // Mock the modules before importing gemini-api
+  // Must export both the class and the singleton to avoid test interference
+  class MockGeminiService {
+    async search() {
+      return "Mock";
+    }
+    async chat() {
+      return "Mock";
+    }
+    async chatStream() {
+      return Promise.resolve(new EventEmitter() as ChildProcess);
+    }
+  }
+
+  // Create a singleton instance of the mock class
+  const mockGeminiServiceInstance = Object.assign(
+    new MockGeminiService(),
+    mockGeminiService,
+  );
+
   mock.module("@/lib/services/gemini-service", () => ({
-    geminiService: mockGeminiService,
+    GeminiService: MockGeminiService,
+    geminiService: mockGeminiServiceInstance,
   }));
 
   // Now we can import gemini-api with mocked dependencies
