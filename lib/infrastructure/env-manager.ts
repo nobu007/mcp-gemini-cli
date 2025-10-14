@@ -3,10 +3,15 @@
  * Centralizes environment variable handling for gemini-cli execution
  */
 
+/**
+ * Configuration interface for Gemini CLI environment setup
+ * @property apiKey - Optional Gemini API key (overrides system env vars)
+ * @property workingDirectory - Optional working directory for CLI execution
+ */
 export interface GeminiEnvConfig {
-  apiKey?: string;
-  workingDirectory?: string;
-  [key: string]: string | undefined;
+  readonly apiKey?: string;
+  readonly workingDirectory?: string;
+  readonly [key: string]: string | undefined;
 }
 
 /**
@@ -72,14 +77,20 @@ export class EnvManager {
    * Creates a version of the environment safe for logging (masks sensitive data)
    * @param env - Environment object to mask
    * @returns A shallow copy with sensitive values masked
+   * @remarks
+   * Performance optimization: Returns original object if no sensitive data present.
+   * Only creates a copy when masking is actually needed.
    */
   static maskSensitiveData(
-    env: Record<string, string | undefined>,
+    env: Readonly<Record<string, string | undefined>>,
   ): Record<string, string | undefined> {
-    // Only create a copy if masking is needed (performance optimization)
-    if (!env.GEMINI_API_KEY) {
-      return env;
+    // Performance optimization: Only create a copy if masking is needed
+    const hasSensitiveData = env.GEMINI_API_KEY !== undefined;
+    if (!hasSensitiveData) {
+      // Return original (readonly) object - no copy needed
+      return env as Record<string, string | undefined>;
     }
+    // Create copy only when sensitive data exists
     const masked = { ...env };
     masked.GEMINI_API_KEY = "[MASKED]";
     return masked;

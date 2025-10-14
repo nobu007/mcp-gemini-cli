@@ -146,13 +146,27 @@ export class Logger {
 
   /**
    * Log debug message (lowest priority)
-   * @param message - Debug message or lazy message generator
+   * @param message - Debug message or lazy message generator (function)
    * @param metadata - Optional metadata object
+   * @remarks
+   * Supports lazy evaluation for expensive debug messages:
+   * - Pass a function to defer message generation until needed
+   * - The function is only called if debug level is enabled
+   * - Prevents performance penalty for disabled debug logs
+   * @example
+   * ```typescript
+   * // Lazy evaluation - only computed if debug is enabled
+   * logger.debug(() => `Expensive: ${JSON.stringify(largeObject)}`);
+   *
+   * // Normal string - always evaluated
+   * logger.debug("Simple message");
+   * ```
    */
   debug(
     message: string | (() => string),
     metadata?: Record<string, unknown>,
   ): void {
+    // Early return optimization: Skip message evaluation if debug disabled
     if (!this.shouldLog("debug")) return;
     const msg = typeof message === "function" ? message() : message;
     this.log("debug", msg, metadata);
