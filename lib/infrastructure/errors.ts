@@ -64,7 +64,7 @@ export class CliSpawnError extends CliError {
   constructor(
     command: string,
     args: string[],
-    public readonly cause: Error,
+    public override readonly cause: Error,
   ) {
     super(
       `Failed to start command ${command} ${args.join(" ")}: ${cause.message}`,

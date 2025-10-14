@@ -181,8 +181,10 @@ describe("Tools Module (Backward Compatibility Adapter)", async () => {
       const env = { GEMINI_API_KEY: "test-key" };
 
       const mockExecute = mock(async () => "Result");
+      const mockStream = mock(async () => new EventEmitter() as ChildProcess);
       mockGeminiCliExecutor.mockReturnValueOnce({
         execute: mockExecute,
+        stream: mockStream,
       });
 
       await executeGeminiCli(cmd, args, timeoutMs, workingDirectory, env);
@@ -196,8 +198,10 @@ describe("Tools Module (Backward Compatibility Adapter)", async () => {
 
     test("should return execution result", async () => {
       const mockExecute = mock(async () => "Test execution output");
+      const mockStream = mock(async () => new EventEmitter() as ChildProcess);
       mockGeminiCliExecutor.mockReturnValueOnce({
         execute: mockExecute,
+        stream: mockStream,
       });
 
       const result = await executeGeminiCli(
@@ -210,8 +214,10 @@ describe("Tools Module (Backward Compatibility Adapter)", async () => {
 
     test("should work with minimal parameters", async () => {
       const mockExecute = mock(async () => "Minimal result");
+      const mockStream = mock(async () => new EventEmitter() as ChildProcess);
       mockGeminiCliExecutor.mockReturnValueOnce({
         execute: mockExecute,
+        stream: mockStream,
       });
 
       const result = await executeGeminiCli(
@@ -240,7 +246,9 @@ describe("Tools Module (Backward Compatibility Adapter)", async () => {
       mockChild.kill = mock(() => true);
 
       const mockStream = mock(async () => mockChild);
+      const mockExecute = mock(async () => "Execute");
       mockGeminiCliExecutor.mockReturnValueOnce({
+        execute: mockExecute,
         stream: mockStream,
       });
 
@@ -267,7 +275,9 @@ describe("Tools Module (Backward Compatibility Adapter)", async () => {
         return mockChild;
       });
 
+      const mockExecute = mock(async () => "Execute");
       mockGeminiCliExecutor.mockReturnValueOnce({
+        execute: mockExecute,
         stream: mockStream,
       });
 
@@ -451,7 +461,11 @@ describe("Tools Module (Backward Compatibility Adapter)", async () => {
 
       // executeGeminiCli
       const mockExecute = mock(async () => "result");
-      mockGeminiCliExecutor.mockReturnValueOnce({ execute: mockExecute });
+      const mockStream2 = mock(async () => new EventEmitter() as ChildProcess);
+      mockGeminiCliExecutor.mockReturnValueOnce({
+        execute: mockExecute,
+        stream: mockStream2,
+      });
       const execResult = await executeGeminiCli(cmd, ["test"]);
       expect(execResult).toBeDefined();
 
@@ -459,8 +473,12 @@ describe("Tools Module (Backward Compatibility Adapter)", async () => {
       const mockChild = new EventEmitter() as ChildProcess;
       mockChild.stdout = new EventEmitter() as any;
       mockChild.stderr = new EventEmitter() as any;
-      const mockStream = mock(async () => mockChild);
-      mockGeminiCliExecutor.mockReturnValueOnce({ stream: mockStream });
+      const mockStream3 = mock(async () => mockChild);
+      const mockExecute2 = mock(async () => "Execute");
+      mockGeminiCliExecutor.mockReturnValueOnce({
+        execute: mockExecute2,
+        stream: mockStream3,
+      });
       const streamResult = await streamGeminiCli(cmd, ["test"]);
       expect(streamResult).toBeDefined();
 

@@ -129,8 +129,16 @@ describe("GeminiCliResolver", () => {
       });
 
       // All should return the same command
-      expect(results[0].command).toBe(results[1].command);
-      expect(results[1].command).toBe(results[2].command);
+      const cmd0 = results[0]?.command;
+      const cmd1 = results[1]?.command;
+      const cmd2 = results[2]?.command;
+      expect(cmd0).toBeDefined();
+      expect(cmd1).toBeDefined();
+      expect(cmd2).toBeDefined();
+      if (cmd0 && cmd1 && cmd2) {
+        expect(cmd0).toBe(cmd1);
+        expect(cmd1).toBe(cmd2);
+      }
     });
   });
 

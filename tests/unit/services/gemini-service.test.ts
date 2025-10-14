@@ -17,18 +17,6 @@ describe("GeminiService", () => {
 
   describe("search method signature", () => {
     test("search method accepts correct parameter types", () => {
-      // Type checking - this will fail at compile time if signature is wrong
-      const _validParams = {
-        query: "test query",
-        limit: 5,
-        raw: true,
-        sandbox: true,
-        yolo: true,
-        model: "gemini-2.5-flash",
-        workingDirectory: "/tmp",
-        apiKey: "test-key",
-      };
-
       // We're just checking the method exists and has the right signature
       expect(typeof service.search).toBe("function");
       // Methods can have default parameters, so length may be less than total parameters
@@ -37,15 +25,6 @@ describe("GeminiService", () => {
 
   describe("chat method signature", () => {
     test("chat method accepts correct parameter types", () => {
-      const _validParams = {
-        prompt: "test prompt",
-        sandbox: true,
-        yolo: true,
-        model: "gemini-2.5-flash",
-        workingDirectory: "/tmp",
-        apiKey: "test-key",
-      };
-
       // We're just checking the method exists and has the right signature
       expect(typeof service.chat).toBe("function");
       // Methods can have default parameters, so length may be less than total parameters
@@ -54,11 +33,6 @@ describe("GeminiService", () => {
 
   describe("chatStream method signature", () => {
     test("chatStream method accepts correct parameter types", () => {
-      const _validParams = {
-        prompt: "test prompt",
-        yolo: true,
-      };
-
       // We're just checking the method exists and has the right signature
       expect(typeof service.chatStream).toBe("function");
       // Methods can have default parameters, so length may be less than total parameters

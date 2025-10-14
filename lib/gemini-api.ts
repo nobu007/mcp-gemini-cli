@@ -344,13 +344,13 @@ export function handleGeminiChatStream(
           child.kill("SIGTERM");
         }, TIMEOUT_CONFIG.CHAT_TIMEOUT_MS);
 
-        child.stdout.on("data", (data: Buffer) => {
+        child.stdout?.on("data", (data: Buffer) => {
           const content = data.toString();
           logger.debug(`STDOUT chunk received (${content.length} bytes)`);
           controller.enqueue(formatSse({ type: "stdout", content: content }));
         });
 
-        child.stderr.on("data", (data: Buffer) => {
+        child.stderr?.on("data", (data: Buffer) => {
           const content = data.toString();
           logger.warn(`STDERR chunk: ${content.trim()}`);
           controller.enqueue(formatSse({ type: "stderr", content: content }));

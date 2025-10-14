@@ -80,7 +80,7 @@ describe("ResponseFormatter", () => {
 
   describe("sse", () => {
     test("formats SSE message with type and content", () => {
-      const message = { type: "stdout", content: "test output" };
+      const message = { type: "stdout" as const, content: "test output" };
       const sse = ResponseFormatter.sse(message);
 
       expect(sse).toContain("data: ");
@@ -102,7 +102,7 @@ describe("ResponseFormatter", () => {
     });
 
     test("handles empty content", () => {
-      const message = { type: "stdout", content: "" };
+      const message = { type: "stdout" as const, content: "" };
       const sse = ResponseFormatter.sse(message);
 
       expect(sse).toContain('"content":""');
@@ -111,7 +111,7 @@ describe("ResponseFormatter", () => {
 
     test("escapes special characters in JSON", () => {
       const message = {
-        type: "stdout",
+        type: "stdout" as const,
         content: 'test "quotes" and \n newlines',
       };
       const sse = ResponseFormatter.sse(message);
@@ -122,7 +122,7 @@ describe("ResponseFormatter", () => {
     });
 
     test("formats correct SSE structure", () => {
-      const message = { type: "stdout", content: "test" };
+      const message = { type: "stdout" as const, content: "test" };
       const sse = ResponseFormatter.sse(message);
 
       // Should start with "data: "

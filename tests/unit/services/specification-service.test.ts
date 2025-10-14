@@ -1,8 +1,7 @@
 import { describe, it, expect, beforeEach, mock } from "bun:test";
 import { SpecificationService } from "../../../lib/services/specification-service";
-import { FileSystemService } from "../../../lib/infrastructure/file-system-service";
-import { NameGenerationService } from "../../../lib/services/name-generation-service";
-import { Spec } from "../../../lib/core/specs/types";
+import type { FileSystemService } from "../../../lib/infrastructure/file-system-service";
+import type { NameGenerationService } from "../../../lib/services/name-generation-service";
 import { ok, err } from "neverthrow";
 
 describe("SpecificationService", () => {

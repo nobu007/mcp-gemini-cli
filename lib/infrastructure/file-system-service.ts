@@ -53,7 +53,11 @@ export class FileSystemServiceImpl implements FileSystemService {
         .filter((entry) => entry.isDirectory())
         .map((entry) => entry.name);
     } catch (error) {
-      if (error.code === "ENOENT") {
+      if (
+        error instanceof Error &&
+        "code" in error &&
+        error.code === "ENOENT"
+      ) {
         return [];
       }
       throw error;
@@ -78,7 +82,7 @@ export class FileSystemServiceImpl implements FileSystemService {
       await mkdir(path, { recursive: true });
       return ok(undefined);
     } catch (error) {
-      return err(error);
+      return err(error instanceof Error ? error : new Error(String(error)));
     }
   }
 
@@ -100,7 +104,7 @@ export class FileSystemServiceImpl implements FileSystemService {
       await fsWriteFile(path, content, "utf-8");
       return ok(undefined);
     } catch (error) {
-      return err(error);
+      return err(error instanceof Error ? error : new Error(String(error)));
     }
   }
 }
