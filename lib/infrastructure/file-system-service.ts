@@ -1,5 +1,5 @@
-import { Result, ok, err } from "neverthrow";
-import { readdir, mkdir, writeFile as fsWriteFile } from "fs/promises";
+import { writeFile as fsWriteFile, mkdir, readdir } from "node:fs/promises";
+import { err, ok, type Result } from "neverthrow";
 
 export interface FileSystemService {
   getExistingSpecNames(path: string): Promise<string[]>;

@@ -6,6 +6,17 @@
 import { type ChildProcess, spawn } from "node:child_process";
 import { TIMEOUT_CONFIG } from "../../config";
 import { EnvManager } from "./env-manager";
+import {
+  CliExecutionError,
+  CliSpawnError,
+  CliTimeoutError,
+  calculateBackoffDelay,
+  DEFAULT_RETRY_CONFIG,
+  isRetryableError,
+  MaxRetriesExceededError,
+  type RetryConfig,
+  wait,
+} from "./errors";
 import { createLogger, type Logger } from "./logger";
 
 export interface CliCommand {
@@ -17,6 +28,7 @@ export interface CliExecutionOptions {
   timeoutMs?: number;
   workingDirectory?: string;
   env?: Record<string, string | undefined>;
+  retry?: Partial<RetryConfig>;
 }
 
 export interface CliExecutionResult {
@@ -37,11 +49,73 @@ export abstract class CliExecutor {
 
   /**
    * Executes a CLI command with timeout and returns the complete output
+   * Supports automatic retry with exponential backoff for transient failures
    */
   protected async executeWithTimeout(
     cliCommand: CliCommand,
     args: string[],
     options: CliExecutionOptions = {},
+  ): Promise<string> {
+    const retryConfig: RetryConfig = {
+      ...DEFAULT_RETRY_CONFIG,
+      ...options.retry,
+    };
+
+    let lastError: Error | null = null;
+
+    for (let attempt = 0; attempt < retryConfig.maxAttempts; attempt++) {
+      try {
+        if (attempt > 0) {
+          const delay = calculateBackoffDelay(attempt - 1, retryConfig);
+          this.logger.info(
+            `Retry attempt ${attempt + 1}/${retryConfig.maxAttempts} after ${delay}ms delay`,
+          );
+          await wait(delay);
+        }
+
+        return await this.executeWithTimeoutInternal(cliCommand, args, options);
+      } catch (error) {
+        lastError = error as Error;
+
+        // Check if error is retryable
+        if (!isRetryableError(lastError, retryConfig)) {
+          this.logger.warn(
+            `Error is not retryable, failing immediately: ${lastError.message}`,
+          );
+          throw lastError;
+        }
+
+        // Log retry information
+        if (attempt < retryConfig.maxAttempts - 1) {
+          this.logger.warn(
+            `Attempt ${attempt + 1} failed: ${lastError.message}. Will retry...`,
+          );
+        } else {
+          this.logger.error(
+            `All ${retryConfig.maxAttempts} attempts failed. Giving up.`,
+          );
+        }
+      }
+    }
+
+    // All retries exhausted
+    const { command, initialArgs } = cliCommand;
+    const allArgs = [...initialArgs, ...args];
+    throw new MaxRetriesExceededError(
+      command,
+      allArgs,
+      retryConfig.maxAttempts,
+      lastError || new Error("Unknown error"),
+    );
+  }
+
+  /**
+   * Internal method that performs a single CLI execution attempt
+   */
+  private async executeWithTimeoutInternal(
+    cliCommand: CliCommand,
+    args: string[],
+    options: CliExecutionOptions,
   ): Promise<string> {
     const { command, initialArgs } = cliCommand;
     const allArgs = [...initialArgs, ...args];
@@ -73,7 +147,7 @@ export abstract class CliExecutor {
           this.logger.error(
             `Command timed out after ${timeoutMs}ms: ${command} ${allArgs.join(" ")}`,
           );
-          reject(new Error(`CLI operation timed out after ${timeoutMs}ms`));
+          reject(new CliTimeoutError(command, allArgs, timeoutMs));
         }
       }, timeoutMs);
 
@@ -108,7 +182,9 @@ export abstract class CliExecutor {
           if (code === 0) {
             resolve(stdout);
           } else {
-            reject(new Error(`CLI exited with code ${code}: ${stderr}`));
+            reject(
+              new CliExecutionError(command, allArgs, code, stderr, stdout),
+            );
           }
         }
       });
@@ -120,7 +196,7 @@ export abstract class CliExecutor {
           this.logger.error(
             `Failed to start command ${command} ${allArgs.join(" ")}: ${err.message}`,
           );
-          reject(err);
+          reject(new CliSpawnError(command, allArgs, err));
         }
       });
     });

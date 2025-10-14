@@ -4,7 +4,11 @@
  */
 
 import { describe, test, expect, beforeEach } from "bun:test";
-import { CliExecutor, type CliCommand, type CliExecutionOptions } from "../../../lib/infrastructure/cli-executor";
+import {
+  CliExecutor,
+  type CliCommand,
+  type CliExecutionOptions,
+} from "../../../lib/infrastructure/cli-executor";
 
 /**
  * Test implementation of CliExecutor for testing abstract base class
@@ -55,10 +59,14 @@ describe("CliExecutor", () => {
   });
 
   describe("executeWithTimeout", () => {
+    // Helper to disable retry for faster tests
+    const noRetry = { retry: { maxAttempts: 1 } };
+
     test("should execute simple command successfully", async () => {
       const result = await executor.testExecuteWithTimeout(
         { command: "echo", initialArgs: [] },
         ["hello"],
+        noRetry,
       );
       expect(result.trim()).toBe("hello");
     });
@@ -67,6 +75,7 @@ describe("CliExecutor", () => {
       const result = await executor.testExecuteWithTimeout(
         { command: "echo", initialArgs: [] },
         ["hello", "world"],
+        noRetry,
       );
       expect(result.trim()).toBe("hello world");
     });
@@ -75,6 +84,7 @@ describe("CliExecutor", () => {
       const result = await executor.testExecuteWithTimeout(
         { command: "echo", initialArgs: ["initial"] },
         ["final"],
+        noRetry,
       );
       expect(result.trim()).toBe("initial final");
     });
@@ -83,7 +93,7 @@ describe("CliExecutor", () => {
       const result = await executor.testExecuteWithTimeout(
         { command: "pwd", initialArgs: [] },
         [],
-        { workingDirectory: "/tmp" },
+        { workingDirectory: "/tmp", ...noRetry },
       );
       expect(result.trim()).toBe("/tmp");
     });
@@ -92,7 +102,7 @@ describe("CliExecutor", () => {
       const result = await executor.testExecuteWithTimeout(
         { command: "bash", initialArgs: ["-c"] },
         ["echo $TEST_VAR"],
-        { env: { TEST_VAR: "test-value" } },
+        { env: { TEST_VAR: "test-value" }, ...noRetry },
       );
       expect(result.trim()).toBe("test-value");
     });
@@ -102,7 +112,8 @@ describe("CliExecutor", () => {
         executor.testExecuteWithTimeout(
           { command: "bash", initialArgs: ["-c"] },
           ["exit 1"],
-        )
+          noRetry,
+        ),
       ).rejects.toThrow("CLI exited with code 1");
     });
 
@@ -111,7 +122,8 @@ describe("CliExecutor", () => {
         executor.testExecuteWithTimeout(
           { command: "nonexistent-command-xyz", initialArgs: [] },
           [],
-        )
+          noRetry,
+        ),
       ).rejects.toThrow();
     });
 
@@ -120,8 +132,8 @@ describe("CliExecutor", () => {
         executor.testExecuteWithTimeout(
           { command: "sleep", initialArgs: [] },
           ["10"],
-          { timeoutMs: 100 },
-        )
+          { timeoutMs: 100, ...noRetry },
+        ),
       ).rejects.toThrow("CLI operation timed out after 100ms");
     }, 500);
 
@@ -129,6 +141,7 @@ describe("CliExecutor", () => {
       const result = await executor.testExecuteWithTimeout(
         { command: "echo", initialArgs: [] },
         ["test"],
+        noRetry,
       );
       expect(result.trim()).toBe("test");
     });
@@ -137,6 +150,7 @@ describe("CliExecutor", () => {
       const result = await executor.testExecuteWithTimeout(
         { command: "bash", initialArgs: ["-c"] },
         ["exit 0"],
+        noRetry,
       );
       expect(result).toBe("");
     });
@@ -146,6 +160,7 @@ describe("CliExecutor", () => {
         await executor.testExecuteWithTimeout(
           { command: "bash", initialArgs: ["-c"] },
           ["echo error >&2 && exit 1"],
+          noRetry,
         );
       } catch (error) {
         expect((error as Error).message).toContain("error");
@@ -155,7 +170,9 @@ describe("CliExecutor", () => {
 
   describe("isInfoMessage", () => {
     test("should identify 'Loaded cached credentials' as info", () => {
-      expect(executor.testIsInfoMessage("Loaded cached credentials")).toBe(true);
+      expect(executor.testIsInfoMessage("Loaded cached credentials")).toBe(
+        true,
+      );
     });
 
     test("should identify 'Using cached credentials' as info", () => {
@@ -163,23 +180,33 @@ describe("CliExecutor", () => {
     });
 
     test("should identify '[timestamp] Loaded ...' as info", () => {
-      expect(executor.testIsInfoMessage("[2024-01-01] Loaded something")).toBe(true);
+      expect(executor.testIsInfoMessage("[2024-01-01] Loaded something")).toBe(
+        true,
+      );
     });
 
     test("should identify '[timestamp] Using ...' as info", () => {
-      expect(executor.testIsInfoMessage("[2024-01-01] Using something")).toBe(true);
+      expect(executor.testIsInfoMessage("[2024-01-01] Using something")).toBe(
+        true,
+      );
     });
 
     test("should identify '[timestamp] Authenticated ...' as info", () => {
-      expect(executor.testIsInfoMessage("[2024-01-01] Authenticated")).toBe(true);
+      expect(executor.testIsInfoMessage("[2024-01-01] Authenticated")).toBe(
+        true,
+      );
     });
 
     test("should not identify actual errors as info", () => {
-      expect(executor.testIsInfoMessage("Error: something went wrong")).toBe(false);
+      expect(executor.testIsInfoMessage("Error: something went wrong")).toBe(
+        false,
+      );
     });
 
     test("should not identify random messages as info", () => {
-      expect(executor.testIsInfoMessage("This is a random message")).toBe(false);
+      expect(executor.testIsInfoMessage("This is a random message")).toBe(
+        false,
+      );
     });
 
     test("should handle empty messages", () => {
@@ -191,7 +218,9 @@ describe("CliExecutor", () => {
     });
 
     test("should handle messages with leading/trailing whitespace", () => {
-      expect(executor.testIsInfoMessage("  Loaded cached credentials  ")).toBe(true);
+      expect(executor.testIsInfoMessage("  Loaded cached credentials  ")).toBe(
+        true,
+      );
     });
   });
 
@@ -277,12 +306,15 @@ describe("CliExecutor", () => {
   });
 
   describe("error handling", () => {
+    const noRetry = { retry: { maxAttempts: 1 } };
+
     test("should handle command spawn errors gracefully", async () => {
       expect(
         executor.testExecuteWithTimeout(
           { command: "/nonexistent/path/to/command", initialArgs: [] },
           [],
-        )
+          noRetry,
+        ),
       ).rejects.toThrow();
     });
 
@@ -292,7 +324,7 @@ describe("CliExecutor", () => {
         await executor.testExecuteWithTimeout(
           { command: "sleep", initialArgs: [] },
           ["5"],
-          { timeoutMs: 100 },
+          { timeoutMs: 100, ...noRetry },
         );
       } catch (error) {
         const elapsed = Date.now() - startTime;
@@ -306,6 +338,7 @@ describe("CliExecutor", () => {
         await executor.testExecuteWithTimeout(
           { command: "bash", initialArgs: ["-c"] },
           ["echo custom error >&2 && exit 42"],
+          noRetry,
         );
       } catch (error) {
         const errorMessage = (error as Error).message;
@@ -316,10 +349,13 @@ describe("CliExecutor", () => {
   });
 
   describe("integration scenarios", () => {
+    const noRetry = { retry: { maxAttempts: 1 } };
+
     test("should handle complex command with pipes", async () => {
       const result = await executor.testExecuteWithTimeout(
         { command: "bash", initialArgs: ["-c"] },
         ["echo hello | tr 'a-z' 'A-Z'"],
+        noRetry,
       );
       expect(result.trim()).toBe("HELLO");
     });
@@ -328,6 +364,7 @@ describe("CliExecutor", () => {
       const result = await executor.testExecuteWithTimeout(
         { command: "echo", initialArgs: [] },
         ["hello$world"],
+        noRetry,
       );
       expect(result.trim()).toBe("hello$world");
     });
@@ -336,6 +373,7 @@ describe("CliExecutor", () => {
       const result = await executor.testExecuteWithTimeout(
         { command: "bash", initialArgs: ["-c"] },
         ["echo line1 && echo line2"],
+        noRetry,
       );
       expect(result.trim()).toBe("line1\nline2");
     });

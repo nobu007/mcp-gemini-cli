@@ -20,7 +20,8 @@ describe("GeminiCliResolver", () => {
       // Should either find 'gemini' or fallback to npx
       expect(
         result.command === "gemini" ||
-        (result.command === "npx" && result.initialArgs[0] === "@google/gemini-cli")
+          (result.command === "npx" &&
+            result.initialArgs[0] === "@google/gemini-cli"),
       ).toBe(true);
     });
 
@@ -65,7 +66,9 @@ describe("GeminiCliResolver", () => {
       // Verify the structure matches GeminiCliCommand type
       expect(typeof result.command).toBe("string");
       expect(Array.isArray(result.initialArgs)).toBe(true);
-      expect(result.initialArgs.every((arg) => typeof arg === "string")).toBe(true);
+      expect(result.initialArgs.every((arg) => typeof arg === "string")).toBe(
+        true,
+      );
     });
 
     test("should complete within reasonable time", async () => {
