@@ -379,4 +379,98 @@ describe("CliExecutor", () => {
       expect(result.trim()).toBe("line1\nline2");
     });
   });
+
+  describe("retry functionality", () => {
+    test("should retry failed command with exponential backoff", async () => {
+      const startTime = Date.now();
+      try {
+        await executor.testExecuteWithTimeout(
+          { command: "bash", initialArgs: ["-c"] },
+          ["exit 1"],
+          { retry: { maxAttempts: 3, initialDelayMs: 100 } },
+        );
+        expect(true).toBe(false); // Should not reach here
+      } catch (error) {
+        const elapsed = Date.now() - startTime;
+        // Should have waited at least 100ms + 200ms (exponential backoff)
+        expect(elapsed).toBeGreaterThanOrEqual(200);
+        expect((error as Error).message).toContain("Maximum retry attempts");
+        expect((error as Error).message).toContain("3");
+      }
+    }, 2000);
+
+    test("should succeed on retry if command eventually succeeds", async () => {
+      // Create a stateful script that fails first, then succeeds
+      const tmpFile = "/tmp/cli-executor-retry-test.txt";
+      await executor.testExecuteWithTimeout(
+        { command: "bash", initialArgs: ["-c"] },
+        [`rm -f ${tmpFile}`],
+        { retry: { maxAttempts: 1 } },
+      );
+
+      // This command will fail first time (file doesn't exist), then succeed
+      const result = await executor.testExecuteWithTimeout(
+        { command: "bash", initialArgs: ["-c"] },
+        [
+          `if [ ! -f ${tmpFile} ]; then touch ${tmpFile} && exit 1; else echo success; fi`,
+        ],
+        { retry: { maxAttempts: 3, initialDelayMs: 50 } },
+      );
+
+      expect(result.trim()).toBe("success");
+    }, 2000);
+
+    test("should not retry non-retryable errors (code 127)", async () => {
+      try {
+        await executor.testExecuteWithTimeout(
+          { command: "bash", initialArgs: ["-c"] },
+          ["exit 127"], // Command not found
+          { retry: { maxAttempts: 3 } },
+        );
+      } catch (error) {
+        expect((error as Error).message).toContain("CLI exited with code 127");
+        expect((error as Error).message).not.toContain("All 3 attempts");
+      }
+    });
+
+    test("should use custom retry configuration", async () => {
+      const startTime = Date.now();
+      try {
+        await executor.testExecuteWithTimeout(
+          { command: "bash", initialArgs: ["-c"] },
+          ["exit 1"],
+          {
+            retry: {
+              maxAttempts: 2,
+              initialDelayMs: 200,
+              maxDelayMs: 500,
+              backoffMultiplier: 2,
+            },
+          },
+        );
+        expect(true).toBe(false); // Should not reach here
+      } catch (error) {
+        const elapsed = Date.now() - startTime;
+        // Should have waited at least 200ms (1 retry)
+        expect(elapsed).toBeGreaterThanOrEqual(150);
+        expect((error as Error).message).toContain("Maximum retry attempts");
+        expect((error as Error).message).toContain("2");
+      }
+    }, 2000);
+
+    test("should handle timeout during retry attempts", async () => {
+      try {
+        await executor.testExecuteWithTimeout(
+          { command: "sleep", initialArgs: [] },
+          ["10"],
+          {
+            timeoutMs: 100,
+            retry: { maxAttempts: 2, initialDelayMs: 50 },
+          },
+        );
+      } catch (error) {
+        expect((error as Error).message).toContain("timed out");
+      }
+    }, 1000);
+  });
 });
