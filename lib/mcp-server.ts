@@ -45,9 +45,20 @@ import { executeGeminiChat, executeGoogleSearch } from "@/lib/tools";
  * When true, falls back to 'npx gemini-cli' if 'gemini' is not in PATH.
  *
  * @remarks
- * TODO: Should be configurable via environment variable (e.g., ALLOW_NPX=true)
+ * Configurable via environment variable:
+ * - `GEMINI_CLI_ALLOW_NPX=true` - Allow npx fallback (default)
+ * - `GEMINI_CLI_ALLOW_NPX=false` - Require 'gemini' in PATH
+ *
+ * @example Environment Configuration
+ * ```bash
+ * # Allow npx fallback (default behavior)
+ * GEMINI_CLI_ALLOW_NPX=true node dist/index.js
+ *
+ * # Require 'gemini' in PATH (stricter mode)
+ * GEMINI_CLI_ALLOW_NPX=false node dist/index.js
+ * ```
  */
-const allowNpx = true;
+const allowNpx = process.env.GEMINI_CLI_ALLOW_NPX?.toLowerCase() !== "false";
 
 /**
  * MCP Server instance for Gemini CLI tools.
