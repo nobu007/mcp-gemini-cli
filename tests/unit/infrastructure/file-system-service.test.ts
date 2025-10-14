@@ -17,7 +17,7 @@ describe("FileSystemService", () => {
 
   it("getExistingSpecNames should return empty array if directory does not exist", async () => {
     const readdirMock = spyOn(fs, "readdir").mockImplementation(() => {
-      const error: any = new Error("ENOENT");
+      const error = new Error("ENOENT") as NodeJS.ErrnoException;
       error.code = "ENOENT";
       throw error;
     });

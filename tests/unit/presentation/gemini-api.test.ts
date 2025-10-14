@@ -17,8 +17,8 @@ describe("Gemini API Handlers", async () => {
     chat: mock(async () => "Chat response"),
     chatStream: mock(() => {
       const mockChild = new EventEmitter() as ChildProcess;
-      mockChild.stdout = new EventEmitter() as any;
-      mockChild.stderr = new EventEmitter() as any;
+      mockChild.stdout = new EventEmitter() as NodeJS.ReadableStream;
+      mockChild.stderr = new EventEmitter() as NodeJS.ReadableStream;
       mockChild.kill = mock(() => true);
       return Promise.resolve(mockChild);
     }),

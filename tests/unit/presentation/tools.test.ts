@@ -19,18 +19,16 @@ describe("Tools Module (Backward Compatibility Adapter)", async () => {
     })),
   };
 
-  const mockGeminiCliExecutor = mock(function () {
-    return {
+  const mockGeminiCliExecutor = mock(() => ({
       execute: mock(async () => "Execution result"),
       stream: mock(async () => {
         const mockChild = new EventEmitter() as ChildProcess;
-        mockChild.stdout = new EventEmitter() as any;
-        mockChild.stderr = new EventEmitter() as any;
+        mockChild.stdout = new EventEmitter() as NodeJS.ReadableStream;
+        mockChild.stderr = new EventEmitter() as NodeJS.ReadableStream;
         mockChild.kill = mock(() => true);
         return mockChild;
       }),
-    };
-  });
+    }));
 
   const mockGeminiService = {
     search: mock(async () => "Search result from service"),
@@ -241,8 +239,8 @@ describe("Tools Module (Backward Compatibility Adapter)", async () => {
 
     test("should return ChildProcess-like object", async () => {
       const mockChild = new EventEmitter() as ChildProcess;
-      mockChild.stdout = new EventEmitter() as any;
-      mockChild.stderr = new EventEmitter() as any;
+      mockChild.stdout = new EventEmitter() as NodeJS.ReadableStream;
+      mockChild.stderr = new EventEmitter() as NodeJS.ReadableStream;
       mockChild.kill = mock(() => true);
 
       const mockStream = mock(async () => mockChild);
@@ -270,8 +268,8 @@ describe("Tools Module (Backward Compatibility Adapter)", async () => {
 
       const mockStream = mock(async () => {
         const mockChild = new EventEmitter() as ChildProcess;
-        mockChild.stdout = new EventEmitter() as any;
-        mockChild.stderr = new EventEmitter() as any;
+        mockChild.stdout = new EventEmitter() as NodeJS.ReadableStream;
+        mockChild.stderr = new EventEmitter() as NodeJS.ReadableStream;
         return mockChild;
       });
 
@@ -471,8 +469,8 @@ describe("Tools Module (Backward Compatibility Adapter)", async () => {
 
       // streamGeminiCli
       const mockChild = new EventEmitter() as ChildProcess;
-      mockChild.stdout = new EventEmitter() as any;
-      mockChild.stderr = new EventEmitter() as any;
+      mockChild.stdout = new EventEmitter() as NodeJS.ReadableStream;
+      mockChild.stderr = new EventEmitter() as NodeJS.ReadableStream;
       const mockStream3 = mock(async () => mockChild);
       const mockExecute2 = mock(async () => "Execute");
       mockGeminiCliExecutor.mockReturnValueOnce({
