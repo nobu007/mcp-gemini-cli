@@ -1,5 +1,5 @@
-import { Result, ok, err } from 'neverthrow';
-import { readdir, mkdir, writeFile as fsWriteFile } from 'fs/promises';
+import { Result, ok, err } from "neverthrow";
+import { readdir, mkdir, writeFile as fsWriteFile } from "fs/promises";
 
 export interface FileSystemService {
   getExistingSpecNames(path: string): Promise<string[]>;
@@ -11,9 +11,11 @@ export class FileSystemServiceImpl implements FileSystemService {
   async getExistingSpecNames(path: string): Promise<string[]> {
     try {
       const entries = await readdir(path, { withFileTypes: true });
-      return entries.filter(entry => entry.isDirectory()).map(entry => entry.name);
+      return entries
+        .filter((entry) => entry.isDirectory())
+        .map((entry) => entry.name);
     } catch (error) {
-      if (error.code === 'ENOENT') {
+      if (error.code === "ENOENT") {
         return [];
       }
       throw error;
@@ -31,7 +33,7 @@ export class FileSystemServiceImpl implements FileSystemService {
 
   async writeFile(path: string, content: string): Promise<Result<void, Error>> {
     try {
-      await fsWriteFile(path, content, 'utf-8');
+      await fsWriteFile(path, content, "utf-8");
       return ok(undefined);
     } catch (error) {
       return err(error);

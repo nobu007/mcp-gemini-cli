@@ -6,8 +6,8 @@ export class NameGenerationServiceImpl implements NameGenerationService {
   generateUniqueName(text: string, existingNames: string[]): string {
     const slug = text
       .toLowerCase()
-      .replace(/\s+/g, '-')
-      .replace(/[^a-z0-9-]/g, '');
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "");
 
     let uniqueName = slug;
     let counter = 2;

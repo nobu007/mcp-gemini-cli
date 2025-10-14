@@ -712,6 +712,7 @@ beforeAll(() => {
 ### Recent Improvements (2025-10-14)
 
 **Completed:**
+
 - ✅ Implemented SpecificationService.initialize() method with full functionality
 - ✅ Added comprehensive tests for SpecificationService (100% coverage)
 - ✅ Created complete schema tests for core layer (100% coverage)
@@ -723,6 +724,7 @@ beforeAll(() => {
 - ✅ EnvManager: 100% coverage achieved
 
 **Next Steps:**
+
 - Improve cli-executor.ts coverage (currently 7.63%, target >85%)
 - Improve gemini-cli-executor.ts coverage (currently 9.30%, target >85%)
 - Improve gemini-service.ts coverage (currently 7.52%, target >80%)
