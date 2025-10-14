@@ -54,6 +54,9 @@ import {
 // Re-export types for backward compatibility
 export type { GeminiCliCommand } from "./core/types";
 
+// Import types for internal use
+import type { GeminiCliCommand } from "./core/types";
+
 import { GeminiCliResolver } from "./infrastructure/gemini-cli-resolver";
 // Import the service layer
 import { geminiService } from "./services/gemini-service";
@@ -89,7 +92,7 @@ import { geminiService } from "./services/gemini-service";
  */
 export async function decideGeminiCliCommand(
   allowNpx: boolean,
-): Promise<{ command: string; initialArgs: string[] }> {
+): Promise<GeminiCliCommand> {
   return GeminiCliResolver.resolve(allowNpx);
 }
 
@@ -137,7 +140,7 @@ export async function decideGeminiCliCommand(
  * @see {@link GeminiCliExecutor.execute} for the recommended API
  */
 export async function executeGeminiCli(
-  geminiCliCommand: { command: string; initialArgs: string[] },
+  geminiCliCommand: GeminiCliCommand,
   args: string[],
   timeoutMs?: number,
   workingDirectory?: string,
@@ -197,7 +200,7 @@ export async function executeGeminiCli(
  * @see {@link handleGeminiChatStream} for higher-level streaming API
  */
 export async function streamGeminiCli(
-  geminiCliCommand: { command: string; initialArgs: string[] },
+  geminiCliCommand: GeminiCliCommand,
   args: string[],
   workingDirectory?: string,
   env?: Record<string, string | undefined>,
