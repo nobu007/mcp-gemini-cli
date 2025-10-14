@@ -3,7 +3,11 @@
  * Provides consistent CLI execution with timeout, error handling, and logging
  */
 
-import { type ChildProcess, spawn } from "node:child_process";
+import {
+  type ChildProcess,
+  type ChildProcessWithoutNullStreams,
+  spawn,
+} from "node:child_process";
 import { TIMEOUT_CONFIG } from "../../config";
 import { EnvManager } from "./env-manager";
 import {
@@ -130,10 +134,10 @@ export abstract class CliExecutor {
     });
 
     return new Promise((resolve, reject) => {
-      const child = spawn(command, allArgs, {
+      const child: ChildProcessWithoutNullStreams = spawn(command, allArgs, {
         stdio: ["pipe", "pipe", "pipe"],
         cwd: cwd,
-        env: fullEnv,
+        env: fullEnv as NodeJS.ProcessEnv,
       });
 
       let stdout = "";
@@ -153,7 +157,7 @@ export abstract class CliExecutor {
 
       child.stdin.end();
 
-      child.stdout.on("data", (data) => {
+      child.stdout.on("data", (data: Buffer) => {
         const output = data.toString();
         stdout += output;
         if (output.trim()) {
@@ -161,7 +165,7 @@ export abstract class CliExecutor {
         }
       });
 
-      child.stderr.on("data", (data) => {
+      child.stderr.on("data", (data: Buffer) => {
         const message = data.toString();
         stderr += message;
 
@@ -171,7 +175,7 @@ export abstract class CliExecutor {
         }
       });
 
-      child.on("close", (code) => {
+      child.on("close", (code: number | null) => {
         if (!isResolved) {
           isResolved = true;
           clearTimeout(timeout);
@@ -183,13 +187,19 @@ export abstract class CliExecutor {
             resolve(stdout);
           } else {
             reject(
-              new CliExecutionError(command, allArgs, code, stderr, stdout),
+              new CliExecutionError(
+                command,
+                allArgs,
+                code ?? 1,
+                stderr,
+                stdout,
+              ),
             );
           }
         }
       });
 
-      child.on("error", (err) => {
+      child.on("error", (err: Error) => {
         if (!isResolved) {
           isResolved = true;
           clearTimeout(timeout);
@@ -221,10 +231,10 @@ export abstract class CliExecutor {
       env: EnvManager.maskSensitiveData(fullEnv),
     });
 
-    const child = spawn(command, allArgs, {
+    const child: ChildProcessWithoutNullStreams = spawn(command, allArgs, {
       stdio: ["pipe", "pipe", "pipe"],
       cwd: cwd,
-      env: fullEnv,
+      env: fullEnv as NodeJS.ProcessEnv,
     });
 
     // Close stdin immediately since we're not sending any input
