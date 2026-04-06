@@ -50,7 +50,8 @@
     "test": "bun test",
     "test:integration": "bun test tests/integration",
     "test:e2e": "playwright test",
-    "prepare": "bun run build:prod && lefthook install"
+    "prepare": "bun run build:prod && lefthook install",
+    "sec:allow-scripts": "npx @lavamoat/allow-scripts auto"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.0.5",
