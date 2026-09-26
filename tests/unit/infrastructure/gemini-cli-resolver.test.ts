@@ -3,7 +3,7 @@
  * Tests CLI command resolution logic
  */
 
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { GeminiCliResolver } from "../../../lib/infrastructure/gemini-cli-resolver";
 
 describe("GeminiCliResolver", () => {
