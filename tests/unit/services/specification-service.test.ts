@@ -1,8 +1,8 @@
-import { describe, it, expect, beforeEach, mock } from "bun:test";
-import { SpecificationService } from "../../../lib/services/specification-service";
+import { beforeEach, describe, expect, it, mock } from "bun:test";
+import { err, ok } from "neverthrow";
 import type { FileSystemService } from "../../../lib/infrastructure/file-system-service";
 import type { NameGenerationService } from "../../../lib/services/name-generation-service";
-import { ok, err } from "neverthrow";
+import { SpecificationService } from "../../../lib/services/specification-service";
 
 // Type-safe mock definitions
 // biome-ignore lint/suspicious/noExplicitAny: Mock helper needs flexible typing for testing

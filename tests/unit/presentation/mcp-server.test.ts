@@ -5,7 +5,7 @@
  * management, particularly the GEMINI_CLI_ALLOW_NPX environment variable.
  */
 
-import { describe, test, expect, beforeEach, afterEach } from "bun:test";
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 
 describe("MCP Server Configuration", () => {
   // Store original environment variable
